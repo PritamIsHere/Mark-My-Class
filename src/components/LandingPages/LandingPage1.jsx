@@ -1,5 +1,7 @@
 import React from "react";
 import Image from "../../assets/Image";
+import { Link } from "react-router-dom";
+
 export default function LandingPage1() {
   return (
     <div
@@ -26,7 +28,7 @@ export default function LandingPage1() {
           style={{
             color: "#FF642A",
             fontWeight: 900,
-            fontSize: "2.2rem",
+            fontSize: "2rem",
             letterSpacing: "2px",
           }}
         >
@@ -96,7 +98,8 @@ export default function LandingPage1() {
             </span>
           </p>
           <div style={{ display: "flex", gap: "18px", marginBottom: "30px" }}>
-            <button
+            <Link
+              to="/login"
               style={{
                 background: "#FF642A",
                 color: "#fff",
@@ -118,8 +121,8 @@ export default function LandingPage1() {
                 e.target.style.transform = "scale(1)";
               }}
             >
-              Register Now
-            </button>
+              Get Started
+            </Link>
             <button
               style={{
                 background: "#fff",

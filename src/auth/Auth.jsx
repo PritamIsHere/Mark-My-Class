@@ -3,7 +3,7 @@ import { useAuth } from "../Context/AuthContext";
 // Protected Route Component
 export const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem("token");
-  return token ? children : <Navigate to="/login" />;
+  return token ? children : <Navigate to="/home" />;
 };
 
 // Public Route Restriction (e.g., /login, /register)

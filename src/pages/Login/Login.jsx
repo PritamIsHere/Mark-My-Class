@@ -4,7 +4,7 @@ import axios from "axios";
 import axiosInstance from "../../api/axiosInstance";
 import toast from "react-hot-toast";
 import { useAuth } from "../../Context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Forcechange from "../../components/Force-pass-change/Forcechange";
 
 export default function LoginPage() {
@@ -142,12 +142,22 @@ export default function LoginPage() {
             {/* Footer */}
             <p className="text-center text-sm text-gray-600 mt-6">
               Don't have an account?{" "}
-              <a
-                href="/"
+              <Link
+                to="/"
                 className="text-orange-600 font-semibold hover:underline"
               >
                 Contact with Admin
-              </a>
+              </Link>
+            </p>
+
+            <p className="text-center text-sm text-gray-600">
+              Back to home page{" "}
+              <Link
+                to="/"
+                className="text-orange-600 font-semibold hover:underline"
+              >
+                Home
+              </Link>
             </p>
           </div>
         </div>
