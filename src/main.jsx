@@ -8,10 +8,10 @@ import LandingPageFooter from "./components/LandingPages/LandingPageFooter.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    {/* <App /> */}
-    <LandingPage1 />
+    <App />
+    {/* <LandingPage1 />
     <LandingPage2 />
     <LandingPage3 />
-    <LandingPageFooter />
+    <LandingPageFooter /> */}
   </StrictMode>
 );
