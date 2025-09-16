@@ -1,11 +1,11 @@
-import React from 'react'
+import React from "react";
 
 const TeacherAttendence = () => {
   return (
     <div>
-      Teacher Attendance
+      <h1>Teacher Attendance</h1>
     </div>
-  )
-}
+  );
+};
 
-export default TeacherAttendence
+export default TeacherAttendence;
