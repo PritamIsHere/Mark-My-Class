@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Home,
   Users,
@@ -15,6 +15,7 @@ import { useAuth } from "../../Context/AuthContext";
 
 const Admin = () => {
   const { CurrentUser, userRole, fullLoading } = useAuth();
+  const [open, setOpen] = useState(false);
 
   return (
     <div className="flex h-screen bg-white">
@@ -24,7 +25,8 @@ const Admin = () => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
         {/* Top Navbar */}
-        <header className="flex items-center justify-between bg-white p-4 shadow border-b border-neutral-300">
+        <header className="flex items-center justify-between bg-white p-4 shadow border-b border-neutral-300 relative">
+          {/* Search Bar */}
           <div className="flex items-center gap-3 bg-gray-100 px-3 py-2 rounded-lg w-80">
             <Search size={18} className="text-gray-500" />
             <input
@@ -33,20 +35,50 @@ const Admin = () => {
               className="bg-transparent focus:outline-none text-sm flex-1"
             />
           </div>
+
+          {/* Right Section */}
           <div className="flex items-center gap-6">
+            {/* Notification */}
             <button className="relative">
               <Bell size={20} className="text-gray-700" />
-              {/* <span className="absolute -top-1 -right-2 bg-red-500 text-white text-xs px-1 rounded-full">
-                5
-              </span> */}
             </button>
-            <div className="flex items-center gap-2 cursor-pointer">
-              <div className="w-9 h-9 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold">
-                <User size={18} />
+
+            {/* User Profile */}
+            <div className="relative">
+              <div
+                className="flex items-center gap-2 cursor-pointer"
+                onClick={() => setOpen(!open)}
+              >
+                <div className="w-9 h-9 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold">
+                  <User size={18} />
+                </div>
+                <span className="font-medium text-gray-700">
+                  {CurrentUser?.existuser?.name}
+                </span>
               </div>
-              <span className="font-medium text-gray-700">
-                {CurrentUser?.existuser?.name}
-              </span>
+
+              {/* Dropdown */}
+              {open && (
+                <div className="absolute right-0 mt-2 w-64 bg-white shadow-lg border border-gray-200 rounded-lg p-4 z-50">
+                  <h3 className="text-2xl font-semibold text-orange-600 border-b pb-2">
+                    Profile
+                  </h3>
+                  <div className="mt-3 space-y-2">
+                    <p className="text-lg text-gray-700">
+                      <span className="font-semibold">Name: </span>
+                      {CurrentUser?.existuser?.name}
+                    </p>
+                    <p className="text-lg text-gray-700">
+                      <span className="font-semibold">Email: </span>
+                      {CurrentUser?.existuser?.email}
+                    </p>
+                    <p className="text-lg text-gray-700">
+                      <span className="font-semibold">Role: </span>
+                      {CurrentUser?.existuser?.role}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </header>
@@ -86,7 +118,7 @@ const Admin = () => {
           </div>
 
           {/* Attendance Table */}
-          <div className="bg-white rounded-xl shadow p-6 mb-6">
+          {/* <div className="bg-white rounded-xl shadow p-6 mb-6">
             <h3 className="text-lg font-semibold mb-4 text-orange-600">
               Recent Attendance
             </h3>
@@ -120,7 +152,7 @@ const Admin = () => {
                 </tr>
               </tbody>
             </table>
-          </div>
+          </div> */}
 
           {/* Attendance Trend Chart Placeholder */}
           <div className="bg-white rounded-xl shadow p-6">

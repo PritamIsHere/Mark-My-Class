@@ -3,10 +3,12 @@ import Sidebar from "../../Sidebar/Sidebar";
 import axiosInstance from "../../../api/axiosInstance";
 import { useAuth } from "../../../Context/AuthContext";
 import toast from "react-hot-toast";
+import { CheckCircle2 } from "lucide-react";
 
 const Createuser = () => {
   const [role, setRole] = useState("student");
   const [subjects, setSubjects] = useState([]);
+  const [successData, setSuccessData] = useState(null);
 
   const { authToken } = useAuth();
 
@@ -43,20 +45,20 @@ const Createuser = () => {
       subjects: role === "teacher" ? subjects : [],
     };
 
-    console.log("📦 Sending body:", body);
-
     try {
       const res = await axiosInstance.post("/admin/create-user", body, {
         headers: { Authorization: `Bearer ${authToken}` },
       });
-      toast.success("User created successfully!");
-      console.log("✅ API Response:", res.data);
-    } catch (error) {
-      console.error(
-        "❌ Error creating user:",
-        error?.response?.data || error.message
+      toast.success(
+        `${role.charAt(0).toUpperCase() + role.slice(1)} created successfully!`
       );
-      toast.error(error?.response?.data?.message || "Failed to create user");
+      setSuccessData({
+        role: role,
+        email: res.data?.email,
+        tempPassword: res.data?.tempPassword,
+      });
+    } catch (error) {
+      toast.error("Failed to create user");
     }
   };
 
@@ -67,7 +69,7 @@ const Createuser = () => {
 
       {/* Main content with scroll */}
       <div className="flex-1 overflow-y-auto">
-        <div className="min-h-full bg-gradient-to-br from-orange-50 to-white flex items-center justify-center p-6">
+        <div className="min-h-full bg-gradient-to-br from-orange-100 to-white flex items-center justify-center p-6">
           <div className="w-full max-w-3xl bg-white rounded-2xl shadow-xl border border-orange-100 p-8">
             <h1 className="text-2xl font-bold text-orange-600 mb-6 text-center">
               Create New User
@@ -193,10 +195,11 @@ const Createuser = () => {
                   {subjects.map((subj, idx) => (
                     <div
                       key={idx}
-                      className="grid grid-cols-1 md:grid-cols-4 gap-3 border p-3 rounded-xl bg-orange-50"
+                      className="grid grid-cols-1 md:grid-cols-4 gap-3 border border-orange-200 p-3 rounded-xl bg-orange-50"
                     >
                       <input
                         placeholder="Subject Name"
+                        name="subjectName"
                         value={subj.subjectName}
                         onChange={(e) =>
                           handleSubjectChange(
@@ -209,6 +212,7 @@ const Createuser = () => {
                       />
                       <input
                         placeholder="Code"
+                        name="subjectCode"
                         value={subj.subjectCode}
                         onChange={(e) =>
                           handleSubjectChange(
@@ -222,6 +226,7 @@ const Createuser = () => {
                       <input
                         type="number"
                         placeholder="Semester"
+                        name="semester"
                         value={subj.semester}
                         onChange={(e) =>
                           handleSubjectChange(idx, "semester", e.target.value)
@@ -231,6 +236,7 @@ const Createuser = () => {
                       <input
                         placeholder="Department"
                         value={subj.department}
+                        name="department"
                         onChange={(e) =>
                           handleSubjectChange(idx, "department", e.target.value)
                         }
@@ -259,6 +265,39 @@ const Createuser = () => {
           </div>
         </div>
       </div>
+      {successData && (
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 text-center max-w-md">
+            <CheckCircle2 className="text-green-500 w-16 h-16 mx-auto mb-4" />
+            <h2 className="text-xl font-bold text-gray-800 mb-2">
+              {role.charAt(0).toUpperCase() + role.slice(1)} Created
+              Successfully!
+            </h2>
+            <p className="text-gray-600 mb-4">
+              The {role.charAt(0).toUpperCase() + role.slice(1)} has been
+              created. Share the credentials below
+            </p>
+            <div className="bg-gray-100 rounded-lg p-4 text-left mb-4">
+              <p>
+                <span className="font-semibold text-gray-800">Email:</span>{" "}
+                {successData.email}
+              </p>
+              <p>
+                <span className="font-semibold text-gray-800">
+                  Temp Password:
+                </span>{" "}
+                {successData.tempPassword}
+              </p>
+            </div>
+            <button
+              onClick={() => setSuccessData(null)}
+              className="mt-2 px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
