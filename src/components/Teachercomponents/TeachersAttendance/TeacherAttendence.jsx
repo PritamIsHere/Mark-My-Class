@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import Sidebar from "../../Sidebar/Sidebar";
 
 const API_URL = "https://sih-2025-backend.onrender.com";
-const orange = "#f97316";
+const orange = "#ff642a";
 
 const styles = {
   container: {
@@ -94,40 +95,45 @@ const TeacherAttendence = () => {
   }, [teacherId, token]);
 
   return (
-    <div style={responsiveStyle(styles.container)}>
-      <div style={responsiveStyle(styles.title)}>Teacher Attendance Stats</div>
-      {loading ? (
-        <p style={{ color: orange, textAlign: "center" }}>Loading...</p>
-      ) : error ? (
-        <div style={styles.error}>{error}</div>
-      ) : (
-        <div style={{ overflowX: "auto" }}>
-          <table style={styles.table}>
-            <thead>
-              <tr>
-                <th style={styles.th}>Session ID</th>
-                <th style={styles.th}>Class Name</th>
-                <th style={styles.th}>Created At</th>
-                <th style={styles.th}>Total Marked</th>
-                <th style={styles.th}>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {stats.map((stat) => (
-                <tr key={stat.sessionId}>
-                  <td style={styles.td}>{stat.sessionId}</td>
-                  <td style={styles.td}>{stat.className}</td>
-                  <td style={styles.td}>
-                    {new Date(stat.createdAt).toLocaleString()}
-                  </td>
-                  <td style={styles.td}>{stat.totalMarked}</td>
-                  <td style={styles.td}>{stat.status}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+    <div className="flex h-screen bg-white">
+      <Sidebar />
+      <div style={responsiveStyle(styles.container)}>
+        <div style={responsiveStyle(styles.title)}>
+          Teacher Attendance Stats
         </div>
-      )}
+        {loading ? (
+          <p style={{ color: orange, textAlign: "center" }}>Loading...</p>
+        ) : error ? (
+          <div style={styles.error}>{error}</div>
+        ) : (
+          <div style={{ overflowX: "auto" }}>
+            <table style={styles.table}>
+              <thead>
+                <tr>
+                  <th style={styles.th}>Session ID</th>
+                  <th style={styles.th}>Class Name</th>
+                  <th style={styles.th}>Created At</th>
+                  <th style={styles.th}>Total Marked</th>
+                  <th style={styles.th}>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {stats.map((stat) => (
+                  <tr key={stat.sessionId}>
+                    <td style={styles.td}>{stat.sessionId}</td>
+                    <td style={styles.td}>{stat.className}</td>
+                    <td style={styles.td}>
+                      {new Date(stat.createdAt).toLocaleString()}
+                    </td>
+                    <td style={styles.td}>{stat.totalMarked}</td>
+                    <td style={styles.td}>{stat.status}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
