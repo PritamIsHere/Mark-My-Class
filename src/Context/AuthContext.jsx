@@ -24,6 +24,8 @@ export const AuthProvider = ({ children }) => {
       });
       setCurrentUser(res?.data);
       setUserRole(res?.data?.existuser?.role);
+      // Store userId in localStorage for later use
+      localStorage.setItem("userId", res?.data?.existuser?._id || "");
       setIsLoggedIn(true);
     } catch (error) {
       localStorage.removeItem("token");

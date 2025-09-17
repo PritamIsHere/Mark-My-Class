@@ -24,8 +24,8 @@ import Collegeconfig from "./components/Admincomponents/Collegeconfig/Collegecon
 // Teachers Components Area
 
 import CreateQr from "./components/Teachercomponents/CreateQrCode/CreateQr";
-import DeleteQr from "./components/Teachercomponents/DeleteQrSession/DeleteQr";
-import EndQrSession from "./components/Teachercomponents/EndQrSession/EndQrSession";
+// import DeleteQr from "./components/Teachercomponents/DeleteQrSession/DeleteQr";
+// import EndQrSession from "./components/Teachercomponents/EndQrSession/EndQrSession";
 import TeacherAttendence from "./components/Teachercomponents/TeachersAttendance/TeacherAttendence";
 
 // Student Components Area
@@ -117,7 +117,7 @@ const App = () => {
               element={
                 <PrivateRoute>
                   <TeacherRoute>
-                    <EndQrSession />
+                    {/* <EndQrSession /> */}
                   </TeacherRoute>
                 </PrivateRoute>
               }
@@ -128,7 +128,7 @@ const App = () => {
               element={
                 <PrivateRoute>
                   <TeacherRoute>
-                    <DeleteQr />
+                    {/* <DeleteQr /> */}
                   </TeacherRoute>
                 </PrivateRoute>
               }
