@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 const API_URL = "https://sih-2025-backend.onrender.com";
-const orange = "#fb8c00";
+const orange = "#f97316";
 
 const styles = {
   container: {
@@ -109,7 +109,7 @@ const TeacherAttendence = () => {
                 <th style={styles.th}>Class Name</th>
                 <th style={styles.th}>Created At</th>
                 <th style={styles.th}>Total Marked</th>
-                <th style={styles.th}>Students</th>
+                <th style={styles.th}>Status</th>
               </tr>
             </thead>
             <tbody>
@@ -121,11 +121,7 @@ const TeacherAttendence = () => {
                     {new Date(stat.createdAt).toLocaleString()}
                   </td>
                   <td style={styles.td}>{stat.totalMarked}</td>
-                  <td style={styles.td}>
-                    {stat.students && stat.students.length > 0
-                      ? stat.students.join(", ")
-                      : "—"}
-                  </td>
+                  <td style={styles.td}>{stat.status}</td>
                 </tr>
               ))}
             </tbody>
