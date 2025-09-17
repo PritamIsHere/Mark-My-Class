@@ -9,7 +9,9 @@ import image7 from "./image7.png";
 import image8 from "./image8.png";
 import image9 from "./image9.png";
 import image10 from "./modi.png";
+import logo from "./favicon-32x32.png";
 const Image = {
+  logo,
   spiner,
   image1,
   image2,

@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import Image from "../../assets/Image";
 
 export default function LoadingScreen() {
   return (
@@ -17,7 +18,9 @@ export default function LoadingScreen() {
         transition={{ duration: 0.8, ease: "easeOut" }}
         className="bg-white rounded-full p-6 shadow-2xl"
       >
-        <span className="text-4xl font-bold text-orange-600">📘</span>
+        <span className="text-4xl font-bold text-orange-600">
+          <img src={Image.logo} alt="Logo" />
+        </span>
       </motion.div>
 
       {/* App Name (No Fade-in) */}
