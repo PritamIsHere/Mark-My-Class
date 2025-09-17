@@ -83,11 +83,11 @@ const Sidebar = () => {
         label: "Scan",
         icon: <QrCode size={20} />,
       },
-      {
-        to: "/student/attendance",
-        label: "Attend",
-        icon: <ClipboardList size={20} />,
-      },
+      // {
+      //   to: "/student/attendance",
+      //   label: "Attend",
+      //   icon: <ClipboardList size={20} />,
+      // },
       {
         to: "/student/leaderboard",
         label: "Rank",
@@ -196,9 +196,9 @@ const Sidebar = () => {
                 <NavLink to="/student/scan-qr-code" className={getLinkClass}>
                   <QrCode size={18} /> Scan QR Code
                 </NavLink>
-                <NavLink to="/student/attendance" className={getLinkClass}>
+                {/* <NavLink to="/student/attendance" className={getLinkClass}>
                   <ClipboardList size={18} /> Attendance
-                </NavLink>
+                </NavLink> */}
                 <NavLink to="/student/leaderboard" className={getLinkClass}>
                   <BarChart2 size={18} /> Leaderboard
                 </NavLink>
