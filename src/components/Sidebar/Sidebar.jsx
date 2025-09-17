@@ -43,12 +43,12 @@ const Sidebar = () => {
 
   const roleLinks = {
     admin: [
-      { to: "/admin/create-user", label: "Create", icon: <Plus size={20} /> },
       {
         to: "/admin/reset-password",
         label: "Reset",
         icon: <RotateCcwKey size={20} />,
       },
+      { to: "/admin/create-user", label: "Create", icon: <Plus size={20} /> },
       {
         to: "/admin/college-config",
         label: "College",
