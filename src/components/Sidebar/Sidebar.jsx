@@ -38,7 +38,7 @@ const Sidebar = () => {
 
   const commonLinks = [
     { to: "/", label: "Home", icon: <Home size={20} /> },
-    { to: "/", label: "Settings", icon: <Settings size={20} /> },
+    // { to: "/", label: "Settings", icon: <Settings size={20} /> },
   ];
 
   const roleLinks = {
@@ -205,9 +205,9 @@ const Sidebar = () => {
               </>
             )}
 
-            <NavLink to="/" className={getLinkClass}>
+            {/* <NavLink to="/" className={getLinkClass}>
               <Settings size={18} /> Settings
-            </NavLink>
+            </NavLink> */}
 
             <button
               onClick={handleLogout}
