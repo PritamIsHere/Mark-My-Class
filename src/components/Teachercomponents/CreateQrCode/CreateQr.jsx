@@ -152,19 +152,13 @@ const CreateQr = () => {
         console.log("API returned subjects:", res.data.subjects); // Debug log
         setSubjects(res.data.subjects || []);
 
-        // Auto-select first subject using the correct key
+        // Auto-select first subject using _id
         if (res.data.subjects && res.data.subjects.length > 0) {
-          const first = res.data.subjects[0];
-
-          // CHOOSE THE CORRECT KEY BELOW BASED ON YOUR API RESPONSE!
-          // If your subject looks like { _id, name }
-          if (first._id) setSubjectId(first._id);
-          // If your subject looks like { subjectId, subjectName }
-          else if (first.subjectId) setSubjectId(first.subjectId);
-          // If your subject looks like { id, subject }
-          else if (first.id) setSubjectId(first.id);
+          setSubjectId(res.data.subjects[0]._id);
         } else {
-          setError("No subjects assigned. Please contact admin or add subjects for this teacher.");
+          setError(
+            "No subjects assigned. Please contact admin or add subjects for this teacher."
+          );
         }
       } catch (err) {
         setError("Failed to fetch subjects. Please try again.");
@@ -247,28 +241,12 @@ const CreateQr = () => {
           disabled={subjectSelectDisabled}
         >
           <option value="">Select Subject</option>
-          {/* CHOOSE ONLY ONE KEY BELOW BASED ON YOUR ACTUAL API RESPONSE */}
-          {/* Example 1: { _id, name } */}
-          {subjects[0] && subjects[0]._id &&
-            subjects.map((subj) => (
-              <option key={subj._id} value={subj._id}>
-                {subj.name}
-              </option>
-            ))}
-          {/* Example 2: { subjectId, subjectName } */}
-          {subjects[0] && subjects[0].subjectId &&
-            subjects.map((subj) => (
-              <option key={subj.subjectId} value={subj.subjectId}>
-                {subj.subjectName}
-              </option>
-            ))}
-          {/* Example 3: { id, subject } */}
-          {subjects[0] && subjects[0].id &&
-            subjects.map((subj) => (
-              <option key={subj.id} value={subj.id}>
-                {subj.subject}
-              </option>
-            ))}
+          {/* Use _id and subjectName from backend */}
+          {subjects.map((subj) => (
+            <option key={subj._id} value={subj._id}>
+              {subj.subjectName}
+            </option>
+          ))}
         </select>
         {subjectSelectDisabled && (
           <div style={styles.error}>
