@@ -1,15 +1,11 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
 import { AlertTriangle } from "lucide-react";
-import Sidebar from "../../components/Sidebar/Sidebar";
 
 const Error = () => {
   const navigate = useNavigate();
 
   return (
     <div className="flex h-screen bg-white">
-      <Sidebar />
-
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center px-6">
           {/* Icon */}
@@ -27,7 +23,7 @@ const Error = () => {
 
           {/* Description */}
           <p className="mt-3 text-gray-500 max-w-md mx-auto">
-            Oops! The page you are looking for doesn’t exist or has been moved.
+            Oops! The page you are looking for doesn't exist or has been moved.
           </p>
 
           {/* Action */}
