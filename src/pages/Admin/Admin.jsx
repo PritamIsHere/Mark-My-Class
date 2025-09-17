@@ -1,25 +1,19 @@
 import React, { useState } from "react";
-import {
-  Home,
-  Users,
-  GraduationCap,
-  ClipboardList,
-  BarChart2,
-  Settings,
-  Bell,
-  Search,
-  User,
-} from "lucide-react";
+import { Bell, Search, User } from "lucide-react";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import { useAuth } from "../../Context/AuthContext";
+import MyChart from "../../components/Chart/Chart";
 
 const Admin = () => {
-  const { CurrentUser, userRole, fullLoading } = useAuth();
+  const { CurrentUser } = useAuth();
   const [open, setOpen] = useState(false);
 
   return (
     <div className="flex h-screen bg-white">
+      {/* Sidebar */}
       <Sidebar />
+
+      {/* Main Content */}
       <div className="flex-1 flex flex-col">
         <header className="flex flex-wrap items-center justify-between bg-white p-4 shadow border-b border-neutral-300 relative gap-4">
           <div className="flex items-center gap-3 w-full sm:w-auto">
@@ -31,6 +25,8 @@ const Admin = () => {
                 className="bg-transparent focus:outline-none text-sm flex-1"
               />
             </div>
+
+            {/* Mobile User Dropdown */}
             <div className="sm:hidden relative">
               <div
                 className="flex items-center cursor-pointer"
@@ -41,7 +37,6 @@ const Admin = () => {
                 </div>
               </div>
 
-              {/* Dropdown */}
               {open && (
                 <div className="absolute right-0 mt-2 w-64 bg-white shadow-lg border border-gray-200 rounded-lg p-4 z-50">
                   <h3 className="text-2xl font-semibold text-orange-600 border-b pb-2">
@@ -66,6 +61,7 @@ const Admin = () => {
             </div>
           </div>
 
+          {/* Desktop User Menu */}
           <div className="hidden sm:flex items-center gap-6">
             <button className="relative">
               <Bell size={20} className="text-gray-700" />
@@ -84,7 +80,6 @@ const Admin = () => {
                 </span>
               </div>
 
-              {/* Dropdown */}
               {open && (
                 <div className="absolute right-0 mt-2 w-64 bg-white shadow-lg border border-gray-200 rounded-lg p-4 z-50">
                   <h3 className="text-2xl font-semibold text-orange-600 border-b pb-2">
@@ -149,13 +144,14 @@ const Admin = () => {
               </p>
             </div>
           </div>
-          
+
+          {/* Attendance Chart */}
           <div className="bg-white rounded-xl shadow p-4 sm:p-6">
             <h3 className="text-base sm:text-lg font-semibold mb-4 text-orange-600">
               Attendance Trend (Monthly)
             </h3>
-            <div className="w-full h-48 sm:h-64 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400 text-sm sm:text-base">
-              [Chart Placeholder]
+            <div className="w-full h-64 sm:h-80">
+              <MyChart />
             </div>
           </div>
         </main>
