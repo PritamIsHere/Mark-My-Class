@@ -43,7 +43,7 @@ const CreateQr = () => {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        console.log("API returned subjects:", res.data.subjects); // Debug log
+        // console.log("API returned subjects:", res.data.subjects);
         setSubjects(res.data.subjects || []);
 
         // Auto-select first subject using _id

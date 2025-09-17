@@ -337,7 +337,7 @@ const Student = () => {
                         return (
                           <tr
                             key={subjectName}
-                            className={`cursor-pointer transition hover:bg-orange-500 ${
+                            className={`cursor-pointer transition hover:bg-orange-500/20 ${
                               idx % 2 === 0 ? "bg-gray-50" : "bg-white"
                             }`}
                             onClick={() =>
@@ -349,13 +349,13 @@ const Student = () => {
                               })
                             }
                           >
-                            <td className="px-3 sm:px-6 py-4 text-gray-900 hover:text-white font-medium">
+                            <td className="px-3 sm:px-6 py-4 text-gray-900 font-medium">
                               {subjectName}
                             </td>
-                            <td className="px-3 sm:px-6 py-4 text-gray-700 hover:text-white">
+                            <td className="px-3 sm:px-6 py-4 text-gray-700">
                               {totalClasses}
                             </td>
-                            <td className="px-3 sm:px-6 py-4 text-gray-700 hover:text-white">
+                            <td className="px-3 sm:px-6 py-4 text-gray-700">
                               {presents}
                             </td>
                             <td className="px-3 sm:px-6 py-4 font-semibold">
