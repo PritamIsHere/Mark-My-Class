@@ -8,6 +8,7 @@ import {
   University,
   QrCode,
   LogOut,
+  BookText,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
@@ -33,9 +34,11 @@ const Sidebar = () => {
 
   return (
     <aside className="w-64 bg-orange-500 text-white flex flex-col font-semibold">
-      <div className="p-6 text-2xl font-bold text-white border-b border-gray-200">
-        College {userRole}
+      <div className="p-6 text-2xl font-bold text-white border-b border-gray-200 items-center flex gap-2">
+        <BookText size={35} />
+        <span>{userRole}</span>
       </div>
+
       <nav className="flex flex-col gap-2 p-4 text-mid">
         <NavLink to="/" className={getLinkClass}>
           <Home size={18} /> Dashboard

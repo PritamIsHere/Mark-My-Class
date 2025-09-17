@@ -27,7 +27,7 @@ export default function LoadingScreen() {
         transition={{ delay: 0.3, duration: 0.6 }}
         className="mt-6 text-3xl md:text-4xl font-extrabold text-white drop-shadow-lg"
       >
-        Mrk My Class
+        Mark My Class
       </motion.h1>
 
       {/* Loading Bar */}

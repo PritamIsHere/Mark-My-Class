@@ -6,12 +6,15 @@ import toast from "react-hot-toast";
 import { useAuth } from "../../Context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 import Forcechange from "../../components/Force-pass-change/Forcechange";
+import { motion } from "framer-motion";
+import { Eye, EyeOff, ShieldCheck, Sparkles } from "lucide-react";
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState("");
   const [userId, setUserId] = useState("");
   const { login, showPassModel, setShowPassModel } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const {
@@ -45,17 +48,41 @@ export default function LoginPage() {
 
   return (
     <>
-      <div className="min-h-screen flex flex-col lg:flex-row items-center justify-center bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600">
+      <div className="min-h-screen flex flex-col lg:flex-row items-center justify-center bg-gradient-to-br from-orange-300 via-orange-500 to-orange-300">
         {/* Left side text */}
-        <div className="hidden lg:flex w-1/2 h-full items-center justify-center text-white px-12">
-          <div>
-            <h1 className="text-5xl font-extrabold leading-tight">
+        <div className="hidden lg:flex w-1/2 h-full items-center justify-center text-white px-12 bg-transparent relative overflow-hidden">
+          {/* Background pattern */}
+
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1 }}
+            className="relative z-10 max-w-md text-center"
+          >
+            {/* Icon */}
+            <div className="flex justify-center mb-6">
+              <div className="p-4 bg-white/20 rounded-full backdrop-blur-lg">
+                <ShieldCheck size={48} className="text-white" />
+              </div>
+            </div>
+
+            {/* Heading */}
+            <h1 className="text-5xl font-extrabold leading-tight drop-shadow-lg">
               Welcome Back 👋
             </h1>
+
+            {/* Sub text */}
             <p className="mt-4 text-lg opacity-90">
-              Login to continue managing your account securely.
+              Login to continue managing your account <br /> securely &
+              efficiently.
             </p>
-          </div>
+
+            {/* Extra engaging tagline */}
+            <div className="mt-6 flex items-center justify-center gap-2 text-sm text-orange-100">
+              <Sparkles size={18} className="text-yellow-300" />
+              <span>Your data is safe with us</span>
+            </div>
+          </motion.div>
         </div>
 
         {/* Right side form */}
@@ -102,26 +129,36 @@ export default function LoginPage() {
               </div>
 
               {/* Password */}
-              <div>
+
+              <div className="relative">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Password
                 </label>
-                <input
-                  type="password"
-                  {...register("password", {
-                    required: "Password is required",
-                    //   minLength: {
-                    //     value: 6,
-                    //     message: "Password must be at least 6 characters",
-                    //   },
-                  })}
-                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 ${
-                    errors.password
-                      ? "border-red-500 focus:ring-red-400"
-                      : "border-gray-300 focus:ring-orange-400"
-                  }`}
-                  placeholder="Enter your password"
-                />
+
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    {...register("password", {
+                      required: "Password is required",
+                    })}
+                    className={`w-full px-4 py-3 pr-10 border rounded-xl focus:outline-none focus:ring-2 ${
+                      errors.password
+                        ? "border-red-500 focus:ring-red-400"
+                        : "border-gray-300 focus:ring-orange-400"
+                    }`}
+                    placeholder="Enter your password"
+                  />
+
+                  {/* Toggle button */}
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
+                  >
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
+
                 {errors.password && (
                   <p className="text-red-500 text-sm mt-1">
                     {errors.password.message}
