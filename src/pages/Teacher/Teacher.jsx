@@ -3,6 +3,7 @@ import { Bell, Search, User } from "lucide-react";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import { useAuth } from "../../Context/AuthContext";
 import MyChart from "../../components/Chart/Chart";
+import TeacherLinechart from "../../components/Chart/TeacherLinechart";
 
 const Teacher = () => {
   const { CurrentUser } = useAuth();
@@ -155,14 +156,14 @@ const Teacher = () => {
           </div>
 
           {/* Attendance Chart */}
-          {/* <div className="bg-white rounded-xl shadow p-4 sm:p-6">
+          <div className="bg-white rounded-xl shadow p-4 sm:p-6">
             <h3 className="text-base sm:text-lg font-semibold mb-4 text-orange-600">
-              Attendance Trend (Monthly)
+              Attendance Trend (June 2025)
             </h3>
             <div className="w-full h-64 sm:h-80">
-              <MyChart />
+              <TeacherLinechart />
             </div>
-          </div> */}
+          </div>
         </main>
       </div>
     </div>
