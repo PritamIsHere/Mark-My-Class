@@ -2,7 +2,7 @@
 
 <div align="center">
 
-## 🚀 Smart India Hackathon 2025 Project
+## 🚀 Smart India Hackathon 2025 Project 
 
 </div>
 
