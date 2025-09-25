@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import axios from "axios";
 import Sidebar from "../../Sidebar/Sidebar";
-
-const API_URL = "https://sih-2025-backend.onrender.com";
+import axiosInstance from "../../../api/axiosInstance";
+import { useAuth } from "../../../Context/AuthContext";
 const orange = "#ff642a";
 
 const styles = {
@@ -91,7 +90,7 @@ const DeleteQr = () => {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const token = localStorage.getItem("token");
+  const { authToken } = useAuth();
 
   const handleDeleteSession = async (e) => {
     e.preventDefault();
@@ -99,8 +98,8 @@ const DeleteQr = () => {
     setError("");
     setMessage("");
     try {
-      const res = await axios.delete(`${API_URL}/session/delete`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const res = await axiosInstance.delete(`/session/delete`, {
+        headers: { Authorization: `Bearer ${authToken}` },
         data: { sessionId },
       });
       setMessage(res.data.message);

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import Sidebar from "../../Sidebar/Sidebar";
+import axiosInstance from "../../../api/axiosInstance";
+import { useAuth } from "../../../Context/AuthContext";
 
-const API_URL = "https://sih-2025-backend.onrender.com";
 const orange = "#ff642a";
 
 const styles = {
@@ -71,17 +71,16 @@ const TeacherAttendence = () => {
   const [stats, setStats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  const teacherId = localStorage.getItem("userId");
-  const token = localStorage.getItem("token");
+  const { authToken, CurrentUser } = useAuth();
+  const teacherId = CurrentUser?.existuser?._id;
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await axios.get(
-          `${API_URL}/user/teacher/${teacherId}/attendance-stats`,
+        const res = await axiosInstance.get(
+          `/user/teacher/${teacherId}/attendance-stats`,
           {
-            headers: { Authorization: `Bearer ${token}` },
+            headers: { Authorization: `Bearer ${authToken}` },
           }
         );
         setStats(res.data.stats || []);
@@ -92,7 +91,7 @@ const TeacherAttendence = () => {
       }
     };
     fetchStats();
-  }, [teacherId, token]);
+  }, [teacherId, authToken]);
 
   return (
     <div className="flex h-screen bg-white">

@@ -433,12 +433,11 @@
 
 // export default CreateQr;
 
-import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
+import { useState, useEffect, useRef } from "react";
 import "../CSS/CreateQr.css";
 import Sidebar from "../../Sidebar/Sidebar";
-
-const API_URL = "https://sih-2025-backend.onrender.com";
+import axiosInstance from "../../../api/axiosInstance";
+import { useAuth } from "../../../Context/AuthContext";
 
 const CreateQr = () => {
   const [department, setDepartment] = useState("");
@@ -463,19 +462,18 @@ const CreateQr = () => {
     delete: "",
   });
 
+  const { authToken, CurrentUser } = useAuth();
   const qrRef = useRef(null);
-
-  const teacherId = localStorage.getItem("userId");
-  const token = localStorage.getItem("token");
+  const teacherId = CurrentUser?.existuser?._id;
 
   useEffect(() => {
     const fetchSubjects = async () => {
       try {
         if (!teacherId) return;
-        const res = await axios.get(
-          `${API_URL}/user/teacher/${teacherId}/subjects`,
+        const res = await axiosInstance.get(
+          `/user/teacher/${teacherId}/subjects`,
           {
-            headers: { Authorization: `Bearer ${token}` },
+            headers: { Authorization: `Bearer ${authToken}` },
           }
         );
         setSubjects(res.data.subjects || []);
@@ -493,7 +491,7 @@ const CreateQr = () => {
       }
     };
     fetchSubjects();
-  }, [teacherId, token]);
+  }, [teacherId, authToken]);
 
   useEffect(() => {
     if (subjectId) {
@@ -530,8 +528,8 @@ const CreateQr = () => {
     setModalVisible(false);
 
     try {
-      const res = await axios.post(
-        `${API_URL}/session/create`,
+      const res = await axiosInstance.post(
+        `/session/create`,
         {
           className,
           subjectId,
@@ -540,7 +538,7 @@ const CreateQr = () => {
           wifiCheckEnabled,
         },
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${authToken}` },
         }
       );
       setQrImage(res.data.qrImage);
@@ -556,17 +554,17 @@ const CreateQr = () => {
     }
   };
 
-  // ✅ End session
+  //  End session
   const handleEndSession = async () => {
     if (!session?.sessionId) return;
     setActionLoading((prev) => ({ ...prev, end: true }));
     setActionMessage((prev) => ({ ...prev, end: "" }));
 
     try {
-      const res = await axios.post(
-        `${API_URL}/session/end`,
+      const res = await axiosInstance.post(
+        `/session/end`,
         { sessionId: session.sessionId },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${authToken}` } }
       );
       setActionMessage((prev) => ({
         ...prev,
@@ -587,15 +585,15 @@ const CreateQr = () => {
     }
   };
 
-  // ✅ Delete session
+  // Delete session
   const handleDeleteSession = async () => {
     if (!session?.sessionId) return;
     setActionLoading((prev) => ({ ...prev, delete: true }));
     setActionMessage((prev) => ({ ...prev, delete: "" }));
 
     try {
-      const res = await axios.delete(`${API_URL}/session/delete`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const res = await axiosInstance.delete(`/session/delete`, {
+        headers: { Authorization: `Bearer ${authToken}` },
         data: { sessionId: session.sessionId },
       });
       setActionMessage((prev) => ({
@@ -617,7 +615,7 @@ const CreateQr = () => {
     }
   };
 
-  // ✅ Share QR
+  // Share QR
   const shareQrCode = async () => {
     if (!qrImage) return;
 

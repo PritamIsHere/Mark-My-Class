@@ -1,8 +1,7 @@
-import React, { useState } from "react";
-import axios from "axios";
+import { useState } from "react";
 import Sidebar from "../../Sidebar/Sidebar";
-
-const API_URL = "https://sih-2025-backend.onrender.com";
+import axiosInstance from "../../../api/axiosInstance";
+import { useAuth } from "../../../Context/AuthContext";
 const orange = "#ff642a";
 
 const styles = {
@@ -105,7 +104,7 @@ const EndQrSession = () => {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const token = localStorage.getItem("token");
+  const { authToken } = useAuth();
 
   const handleEndSession = async (e) => {
     e.preventDefault();
@@ -115,10 +114,10 @@ const EndQrSession = () => {
     setSession(null);
 
     try {
-      const res = await axios.post(
-        `${API_URL}/session/end`,
+      const res = await axiosInstance.post(
+        `/session/end`,
         { sessionId },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${authToken}` } }
       );
       setMessage(res.data.message);
       setSession(res.data.session);
