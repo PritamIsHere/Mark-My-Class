@@ -3,6 +3,7 @@ import Sidebar from "../../Sidebar/Sidebar";
 import { Html5Qrcode } from "html5-qrcode";
 import { useAuth } from "../../../Context/AuthContext";
 import axiosInstance from "../../../api/axiosInstance";
+import Sounds from "../../../assets/Sounds";
 async function sendAttendance({ studentId, sessionId, lat, lng, authToken }) {
   try {
     const response = await axiosInstance.post(
@@ -76,6 +77,9 @@ const ScanQr = () => {
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const html5QrCodeRef = useRef(null);
   const qrRegionId = "qr-reader-region";
+
+  // Successfull attendance Marked sound
+  const [SuccessSound] = useState(new Audio(Sounds.Success));
 
   // Take all essential data from useAuth
   const { CurrentUser, authToken } = useAuth();
@@ -195,6 +199,7 @@ const ScanQr = () => {
 
       const result = await sendAttendance({ ...payload, authToken });
       setScanResult(result?.message || "Attendance marked successfully!");
+      SuccessSound.play();
       setError("");
     } catch (err) {
       // Show only the `error` value from server when available
@@ -347,7 +352,7 @@ const ScanQr = () => {
             <input
               id="manual-qr"
               type="text"
-              className="w-full border border-gray-300 rounded px-3 py-2 mb-2 text-sm sm:text-base"
+              className="w-full border border-gray-300 rounded px-3 py-2 mb-2 text-sm sm:text-base outline-orange-400"
               placeholder="Enter QR code"
               value={code}
               onChange={(e) => setCode(e.target.value)}
