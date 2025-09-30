@@ -229,7 +229,7 @@ const TeacherAttendance = () => {
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
       <div className="flex-1 p-6 max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-800 text-center mb-8">
+        <h1 className="text-3xl font-bold text-orange-500 text-left mb-8">
           📊 Teacher Attendance Stats
         </h1>
 

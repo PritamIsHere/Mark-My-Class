@@ -25,7 +25,7 @@ const Sidebar = () => {
     logout();
     toast.success("Logout successfully");
     navigate("/login");
-    window.location.reload();
+    // window.location.reload();
   };
 
   const baseClass = "flex items-center gap-3 p-3 rounded-lg transition";
