@@ -319,7 +319,7 @@ const TeacherAttendance = () => {
               </tbody>
             </table>
 
-            {/* For Samll Screen device */}
+            {/* For Small Screen device */}
             <div className="md:hidden space-y-4">
               {stats.map((stat) => (
                 <div
