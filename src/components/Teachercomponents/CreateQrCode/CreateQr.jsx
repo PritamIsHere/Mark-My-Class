@@ -439,6 +439,8 @@ import Sidebar from "../../Sidebar/Sidebar";
 import axiosInstance from "../../../api/axiosInstance";
 import { useAuth } from "../../../Context/AuthContext";
 
+import { Check, X } from "lucide-react";
+
 const CreateQr = () => {
   const [department, setDepartment] = useState("");
   const [subjectId, setSubjectId] = useState("");
@@ -461,6 +463,11 @@ const CreateQr = () => {
     end: "",
     delete: "",
   });
+
+  useEffect(() => {
+    actionMessage.delete = "";
+    actionMessage.end = "";
+  }, [actionMessage, setActionMessage]);
 
   const { authToken, CurrentUser } = useAuth();
   const qrRef = useRef(null);
@@ -493,11 +500,13 @@ const CreateQr = () => {
     fetchSubjects();
   }, [teacherId, authToken]);
 
+  // Update Input filed selected subject's
   useEffect(() => {
     if (subjectId) {
       const selectedSubject = subjects.find((s) => s._id === subjectId);
       if (selectedSubject) {
         setDepartment(selectedSubject.department || "");
+        setClassName(selectedSubject.subjectName || ""); // auto-fill class name
       }
     }
   }, [subjectId, subjects]);
@@ -662,7 +671,7 @@ const CreateQr = () => {
         {/* Form Card */}
         <div className="bg-white border border-orange-200 p-6 rounded-2xl shadow-lg max-w-3xl">
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Class Name */}
+            {/* Class Name (readonly) */}
             <div>
               <label className="block text-orange-500 font-medium mb-1">
                 Class Name
@@ -670,10 +679,9 @@ const CreateQr = () => {
               <input
                 type="text"
                 value={className}
-                onChange={(e) => setClassName(e.target.value)}
-                placeholder="Enter class name (e.g., BCA 2nd Year)"
-                required
-                className="w-full border border-orange-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
+                readOnly
+                placeholder="Class name will auto-fill from selected subject"
+                className="w-full border border-orange-300 rounded-lg px-3 py-2 bg-orange-50 text-gray-600 cursor-auto outline-none"
               />
             </div>
 
@@ -687,7 +695,7 @@ const CreateQr = () => {
                 value={department}
                 readOnly
                 placeholder="Department will be auto-filled"
-                className="w-full border border-orange-200 rounded-lg px-3 py-2 bg-orange-50 text-gray-600 cursor-not-allowed"
+                className="w-full border border-orange-300 rounded-lg px-3 py-2 bg-orange-50 text-gray-600 cursor-auto outline-none"
               />
             </div>
 
@@ -755,7 +763,7 @@ const CreateQr = () => {
               disabled={locationLocked}
               className={`w-full py-2 rounded-lg font-semibold transition ${
                 locationLocked
-                  ? "bg-orange-200 text-orange-600 cursor-not-allowed"
+                  ? "bg-orange-500/95 text-white cursor-default"
                   : "bg-orange-500 text-white hover:bg-orange-600"
               }`}
             >
@@ -763,24 +771,34 @@ const CreateQr = () => {
             </button>
 
             {/* WiFi Check */}
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={wifiCheckEnabled}
-                onChange={(e) => setWifiCheckEnabled(e.target.checked)}
-                id="wifiCheck"
-                className="w-4 h-4 accent-orange-500"
-              />
-              <label htmlFor="wifiCheck" className="text-orange-500">
+            <div
+              className="flex items-center gap-2 cursor-pointer select-none"
+              onClick={() => setWifiCheckEnabled(!wifiCheckEnabled)}
+            >
+              <div
+                className={`w-5 h-5 flex items-center justify-center rounded border transition-colors
+          ${
+            wifiCheckEnabled
+              ? "bg-orange-500 border-orange-500 text-white"
+              : "border-gray-400 text-transparent"
+          }`}
+              >
+                {wifiCheckEnabled && <Check size={16} />}
+              </div>
+              <span
+                className={`${
+                  wifiCheckEnabled ? "text-orange-500" : "text-gray-500"
+                }`}
+              >
                 Enable WiFi Check
-              </label>
+              </span>
             </div>
 
             {/* Generate Button */}
             <button
               type="submit"
               disabled={loading || subjectSelectDisabled}
-              className="w-full py-3 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 transition disabled:bg-orange-200 disabled:cursor-not-allowed"
+              className="w-full py-3 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 transition disabled:bg-orange-500 disabled:cursor-not-allowed"
             >
               {loading ? "Creating..." : "Generate QR Code"}
             </button>
@@ -799,7 +817,7 @@ const CreateQr = () => {
                 className="absolute top-3 right-3 text-2xl font-bold text-gray-600 hover:text-orange-600"
                 onClick={() => setModalVisible(false)}
               >
-                ×
+                <X />
               </button>
 
               <h3 className="text-xl font-semibold mb-4 text-orange-600">
