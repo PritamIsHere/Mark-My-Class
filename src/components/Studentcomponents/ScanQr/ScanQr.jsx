@@ -1039,6 +1039,328 @@
 
 // export default ScanQr;
 
+// import React, { useState, useRef, useEffect } from "react";
+// import Sidebar from "../../Sidebar/Sidebar";
+// import { Html5Qrcode } from "html5-qrcode";
+// import { useAuth } from "../../../Context/AuthContext";
+// import axiosInstance from "../../../api/axiosInstance";
+// import Sounds from "../../../assets/Sounds";
+
+// // ✅ Reusable Modal Component
+// const NotificationModal = ({ open, type, message, onClose }) => {
+//   if (!open) return null;
+
+//   const color =
+//     type === "success"
+//       ? "text-green-600"
+//       : type === "error"
+//       ? "text-red-600"
+//       : "text-orange-600";
+
+//   return (
+//     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+//       <div className="bg-white rounded-xl shadow-lg p-6 max-w-sm w-full text-center">
+//         <h2 className={`text-lg font-semibold mb-4 ${color}`}>{message}</h2>
+//         <button
+//           className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition"
+//           onClick={onClose}
+//         >
+//           OK
+//         </button>
+//       </div>
+//     </div>
+//   );
+// };
+
+// // API call
+// async function sendAttendance({ studentId, sessionId, lat, lng, authToken }) {
+//   try {
+//     const response = await axiosInstance.post(
+//       "/attendance/mark",
+//       { studentId, sessionId, lat, lng },
+//       {
+//         headers: {
+//           Authorization: `Bearer ${authToken}`,
+//           "Content-Type": "application/json",
+//         },
+//       }
+//     );
+//     return response.data;
+//   } catch (error) {
+//     throw error;
+//   }
+// }
+
+// // Parse session ID from QR
+// function parseSessionId(raw) {
+//   if (!raw) return "";
+//   try {
+//     const asJson = JSON.parse(raw);
+//     const candidates = [asJson.sessionId, asJson.sessionID, asJson.id];
+//     for (const candidate of candidates) {
+//       if (typeof candidate === "string" && candidate.trim()) {
+//         return candidate.trim();
+//       }
+//     }
+//   } catch (_) {}
+
+//   const text = String(raw).trim();
+
+//   try {
+//     const url = new URL(text);
+//     const fromQuery =
+//       url.searchParams.get("sessionId") ||
+//       url.searchParams.get("sessionID") ||
+//       url.searchParams.get("id");
+//     if (fromQuery && fromQuery.trim()) return fromQuery.trim();
+
+//     const parts = url.pathname.split("/").filter(Boolean);
+//     if (parts.length > 0) {
+//       const last = parts[parts.length - 1];
+//       if (last && last.trim()) return last.trim();
+//     }
+//   } catch (_) {}
+
+//   const objectIdMatch = text.match(/[a-f0-9]{24}/i);
+//   if (objectIdMatch) return objectIdMatch[0];
+//   return text;
+// }
+
+// const ScanQr = () => {
+//   const [code, setCode] = useState("");
+//   const [scanning, setScanning] = useState(false);
+//   const html5QrCodeRef = useRef(null);
+//   const qrRegionId = "qr-reader-region";
+
+//   const { CurrentUser, authToken } = useAuth();
+
+//   const [modalOpen, setModalOpen] = useState(false);
+//   const [modalType, setModalType] = useState("info");
+//   const [modalMessage, setModalMessage] = useState("");
+
+//   const studentId =
+//     CurrentUser?.existuser?._id ||
+//     CurrentUser?.studentId ||
+//     CurrentUser?._id ||
+//     "";
+
+//   // Play success sound safely
+//   const playSuccessSound = () => {
+//     const audio = new Audio(Sounds.Success);
+//     audio.play().catch(() => {}); // prevent autoplay errors
+//   };
+
+//   // Safe cleanup on unmount
+//   useEffect(() => {
+//     return () => {
+//       stopCameraScan();
+//     };
+//   }, []);
+
+//   // Location helper
+//   const getLocation = () => {
+//     return new Promise((resolve, reject) => {
+//       if (!("geolocation" in navigator)) {
+//         reject("Geolocation is not supported by your browser.");
+//         return;
+//       }
+//       navigator.geolocation.getCurrentPosition(
+//         (pos) => {
+//           resolve({
+//             latitude: pos.coords.latitude,
+//             longitude: pos.coords.longitude,
+//           });
+//         },
+//         () => {
+//           reject("Unable to retrieve your location. Please allow access.");
+//         }
+//       );
+//     });
+//   };
+
+//   // Show modal helper
+//   const showModal = (type, message) => {
+//     setModalType(type);
+//     setModalMessage(message);
+//     setModalOpen(true);
+//   };
+
+//   // Handle QR found
+//   const handleQrFound = async (sessionIdFromQr) => {
+//     const usedSessionId = parseSessionId(sessionIdFromQr);
+
+//     if (!studentId)
+//       return showModal("error", "Student ID not found. Please log in again.");
+//     if (!usedSessionId) return showModal("error", "Invalid QR code.");
+//     if (!authToken)
+//       return showModal(
+//         "error",
+//         "Authentication token missing. Please log in again."
+//       );
+
+//     // Get location
+//     let currentLocation;
+//     try {
+//       currentLocation = await getLocation();
+//     } catch (errMsg) {
+//       return showModal("error", errMsg);
+//     }
+
+//     try {
+//       const payload = {
+//         studentId,
+//         sessionId: usedSessionId,
+//         lat: currentLocation.latitude,
+//         lng: currentLocation.longitude,
+//       };
+
+//       const result = await sendAttendance({ ...payload, authToken });
+//       showModal(
+//         "success",
+//         result?.message || "Attendance marked successfully!"
+//       );
+//       playSuccessSound();
+//       stopCameraScan();
+//     } catch (err) {
+//       const data = err?.response?.data;
+//       const serverMsg =
+//         typeof data === "string"
+//           ? data
+//           : data?.error ?? data?.message ?? err?.message ?? "Request failed";
+//       showModal("error", serverMsg);
+//     }
+//   };
+
+//   // Start scanning
+//   const startCameraScan = async () => {
+//     setScanning(true);
+
+//     try {
+//       const cameras = await Html5Qrcode.getCameras();
+//       if (!cameras || cameras.length === 0) {
+//         showModal("error", "No camera found on this device.");
+//         setScanning(false);
+//         return;
+//       }
+
+//       let cameraId = cameras[0].id;
+//       const backCamera = cameras.find(
+//         (cam) => cam.label && /back|environment/i.test(cam.label)
+//       );
+//       if (backCamera) cameraId = backCamera.id;
+
+//       if (!html5QrCodeRef.current) {
+//         html5QrCodeRef.current = new Html5Qrcode(qrRegionId);
+//       }
+
+//       await html5QrCodeRef.current.start(
+//         { deviceId: { exact: cameraId } },
+//         { fps: 10, qrbox: { width: 250, height: 250 } },
+//         async (decodedText) => {
+//           await handleQrFound(decodedText);
+//         }
+//       );
+//     } catch (err) {
+//       showModal("error", "Unable to access camera: " + (err?.message || err));
+//       setScanning(false);
+//     }
+//   };
+
+//   // Stop scanning safely
+//   const stopCameraScan = async () => {
+//     setScanning(false);
+//     if (html5QrCodeRef.current) {
+//       try {
+//         if (html5QrCodeRef.current._isScanning) {
+//           await html5QrCodeRef.current.stop();
+//         }
+//         await html5QrCodeRef.current.clear();
+//       } catch (_) {
+//         // ignore errors
+//       } finally {
+//         html5QrCodeRef.current = null;
+//       }
+//     }
+//   };
+
+//   return (
+//     <div className="flex h-screen w-full bg-gray-50">
+//       <Sidebar />
+//       <div className="flex-1 flex flex-col items-center justify-start p-4 overflow-y-auto">
+//         <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 text-center text-orange-600">
+//           Scan QR Code
+//         </h2>
+
+//         <div className="w-full max-w-2xl bg-white rounded-xl shadow-md p-4 sm:p-6 flex flex-col items-center">
+//           {/* QR Scanner */}
+//           <div className="relative w-full h-[300px] sm:h-[400px] md:h-[70vh] bg-gray-200 flex items-center justify-center rounded-lg mb-4 overflow-hidden">
+//             <div id={qrRegionId} className="w-full h-full" />
+//             {!scanning && (
+//               <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-center bg-gray-100/80 z-10 text-sm">
+//                 Camera preview will appear here
+//               </div>
+//             )}
+//           </div>
+
+//           {/* Start/Stop Button */}
+//           <div className="flex gap-2 w-full mt-2">
+//             {!scanning ? (
+//               <button
+//                 className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition w-full"
+//                 onClick={startCameraScan}
+//               >
+//                 Start Camera Scan
+//               </button>
+//             ) : (
+//               <button
+//                 className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition w-full"
+//                 onClick={stopCameraScan}
+//               >
+//                 Stop Scan
+//               </button>
+//             )}
+//           </div>
+
+//           {/* Manual Input */}
+//           <div className="mt-6 w-full">
+//             <label
+//               className="block text-gray-700 mb-2 text-sm"
+//               htmlFor="manual-qr"
+//             >
+//               Or enter QR code manually:
+//             </label>
+//             <input
+//               id="manual-qr"
+//               type="text"
+//               className="w-full border border-gray-300 rounded px-3 py-2 mb-2 text-sm sm:text-base outline-orange-400"
+//               placeholder="Enter QR code"
+//               value={code}
+//               onChange={(e) => setCode(e.target.value)}
+//             />
+//             <button
+//               className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition w-full"
+//               onClick={async () => await handleQrFound(code)}
+//             >
+//               Submit
+//             </button>
+//           </div>
+//         </div>
+//       </div>
+
+//       {/* ✅ Notification Modal */}
+//       <NotificationModal
+//         open={modalOpen}
+//         type={modalType}
+//         message={modalMessage}
+//         onClose={() => setModalOpen(false)}
+//       />
+//     </div>
+//   );
+// };
+
+// export default ScanQr;
+
+
 import React, { useState, useRef, useEffect } from "react";
 import Sidebar from "../../Sidebar/Sidebar";
 import { Html5Qrcode } from "html5-qrcode";
@@ -1046,7 +1368,7 @@ import { useAuth } from "../../../Context/AuthContext";
 import axiosInstance from "../../../api/axiosInstance";
 import Sounds from "../../../assets/Sounds";
 
-// ✅ Reusable Modal Component
+// ✅ Reusable Notification Modal
 const NotificationModal = ({ open, type, message, onClose }) => {
   if (!open) return null;
 
@@ -1072,7 +1394,7 @@ const NotificationModal = ({ open, type, message, onClose }) => {
   );
 };
 
-// API call
+// API call to mark attendance
 async function sendAttendance({ studentId, sessionId, lat, lng, authToken }) {
   try {
     const response = await axiosInstance.post(
@@ -1157,7 +1479,7 @@ const ScanQr = () => {
     };
   }, []);
 
-  // Location helper
+  // Get current location
   const getLocation = () => {
     return new Promise((resolve, reject) => {
       if (!("geolocation" in navigator)) {
@@ -1185,7 +1507,7 @@ const ScanQr = () => {
     setModalOpen(true);
   };
 
-  // Handle QR found
+  // Handle QR code
   const handleQrFound = async (sessionIdFromQr) => {
     const usedSessionId = parseSessionId(sessionIdFromQr);
 
@@ -1251,6 +1573,8 @@ const ScanQr = () => {
 
       if (!html5QrCodeRef.current) {
         html5QrCodeRef.current = new Html5Qrcode(qrRegionId);
+      } else {
+        await html5QrCodeRef.current.clear(); // clean previous instance
       }
 
       await html5QrCodeRef.current.start(
@@ -1268,18 +1592,19 @@ const ScanQr = () => {
 
   // Stop scanning safely
   const stopCameraScan = async () => {
-    setScanning(false);
-    if (html5QrCodeRef.current) {
-      try {
-        if (html5QrCodeRef.current._isScanning) {
-          await html5QrCodeRef.current.stop();
-        }
-        await html5QrCodeRef.current.clear();
-      } catch (_) {
-        // ignore errors
-      } finally {
-        html5QrCodeRef.current = null;
+    if (!html5QrCodeRef.current) return;
+
+    try {
+      const isScanning = html5QrCodeRef.current.getState() === 2; // 2 = SCANNING
+      if (isScanning) {
+        await html5QrCodeRef.current.stop();
       }
+      await html5QrCodeRef.current.clear();
+    } catch (err) {
+      console.error("Error stopping camera scan:", err);
+    } finally {
+      html5QrCodeRef.current = null;
+      setScanning(false);
     }
   };
 
@@ -1347,7 +1672,7 @@ const ScanQr = () => {
         </div>
       </div>
 
-      {/* ✅ Notification Modal */}
+      {/* Notification Modal */}
       <NotificationModal
         open={modalOpen}
         type={modalType}
