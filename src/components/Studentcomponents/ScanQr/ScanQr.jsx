@@ -531,10 +531,8 @@ const ScanQr = () => {
       };
 
       const result = await sendAttendance({ ...payload, authToken });
-      showModal(
-        "success",
-        result?.message || "Attendance marked successfully!"
-      );
+      showModal("info", result?.message) ||
+        showModal("success", "Attendance marked successfully!");
       playSuccessSound();
       stopCameraScan();
     } catch (err) {
