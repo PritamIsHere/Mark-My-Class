@@ -453,6 +453,7 @@ const ScanQr = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState("info");
   const [modalMessage, setModalMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const studentId =
     CurrentUser?.existuser?._id ||
@@ -517,8 +518,10 @@ const ScanQr = () => {
     // Get location
     let currentLocation;
     try {
+      setLoading(true);
       currentLocation = await getLocation();
     } catch (errMsg) {
+      setLoading(false);
       return showModal("error", errMsg);
     }
 
@@ -544,6 +547,8 @@ const ScanQr = () => {
           ? data
           : data?.error ?? data?.message ?? err?.message ?? "Request failed";
       showModal("error", serverMsg);
+    } finally {
+      setLoading(false); // stop loading
     }
   };
 
@@ -656,11 +661,25 @@ const ScanQr = () => {
               value={code}
               onChange={(e) => setCode(e.target.value)}
             />
-            <button
+            {/* <button
               className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition w-full"
               onClick={async () => await handleQrFound(code)}
             >
               Submit
+            </button> */}
+            <button
+              className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition w-full flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={async () => await handleQrFound(code)}
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Processing...
+                </>
+              ) : (
+                "Submit"
+              )}
             </button>
           </div>
         </div>
