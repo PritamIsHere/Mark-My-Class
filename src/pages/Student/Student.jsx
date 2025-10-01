@@ -183,10 +183,10 @@ const Student = () => {
       <Sidebar />
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col items-center justify-start p-4 sm:p-8 overflow-y-auto">
-        <header className="w-full bg-white p-4 shadow border-b border-neutral-300 relative flex flex-wrap items-center justify-between gap-4">
+      <div className="flex-1 flex flex-col items-center justify-start overflow-y-auto">
+        <header className="w-full sticky top-0 z-50 bg-white p-4 shadow border-b border-neutral-300 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3 w-full sm:w-auto">
-            <div className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-lg flex-1 sm:w-80">
+            <div className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-lg flex-1">
               <Search size={18} className="text-gray-500" />
               <input
                 type="text"
