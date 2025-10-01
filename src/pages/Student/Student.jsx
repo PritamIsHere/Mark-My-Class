@@ -291,7 +291,7 @@ const Student = () => {
             <div className="text-red-600 text-center py-4">{apiError}</div>
           ) : (
             <div className="overflow-x-auto">
-              <div className="overflow-hidden rounded-xl border border-gray-200 shadow-sm">
+              <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
                 <table className="min-w-full text-xs sm:text-sm bg-white">
                   <thead>
                     <tr>
