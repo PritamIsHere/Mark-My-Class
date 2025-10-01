@@ -380,7 +380,6 @@
 
 // export default ScanQr;
 
-
 // import React, { useState, useRef, useEffect } from "react";
 // import Sidebar from "../../Sidebar/Sidebar";
 // import { Html5Qrcode } from "html5-qrcode";
@@ -707,6 +706,341 @@
 // export default ScanQr;
 
 
+// import React, { useState, useRef, useEffect } from "react";
+// import Sidebar from "../../Sidebar/Sidebar";
+// import { Html5Qrcode } from "html5-qrcode";
+// import { useAuth } from "../../../Context/AuthContext";
+// import axiosInstance from "../../../api/axiosInstance";
+// import Sounds from "../../../assets/Sounds";
+
+// // API call
+// async function sendAttendance({ studentId, sessionId, lat, lng, authToken }) {
+//   try {
+//     const response = await axiosInstance.post(
+//       "/attendance/mark",
+//       { studentId, sessionId, lat, lng },
+//       {
+//         headers: {
+//           Authorization: `Bearer ${authToken}`,
+//           "Content-Type": "application/json",
+//         },
+//       }
+//     );
+//     return response.data;
+//   } catch (error) {
+//     throw error;
+//   }
+// }
+
+// // Parse session ID from QR
+// function parseSessionId(raw) {
+//   if (!raw) return "";
+
+//   try {
+//     const asJson = JSON.parse(raw);
+//     const candidates = [asJson.sessionId, asJson.sessionID, asJson.id];
+//     for (const candidate of candidates) {
+//       if (typeof candidate === "string" && candidate.trim()) {
+//         return candidate.trim();
+//       }
+//     }
+//   } catch (_) {}
+
+//   const text = String(raw).trim();
+
+//   try {
+//     const url = new URL(text);
+//     const fromQuery =
+//       url.searchParams.get("sessionId") ||
+//       url.searchParams.get("sessionID") ||
+//       url.searchParams.get("id");
+//     if (fromQuery && fromQuery.trim()) return fromQuery.trim();
+
+//     const parts = url.pathname.split("/").filter(Boolean);
+//     if (parts.length > 0) {
+//       const last = parts[parts.length - 1];
+//       if (last && last.trim()) return last.trim();
+//     }
+//   } catch (_) {}
+
+//   const objectIdMatch = text.match(/[a-f0-9]{24}/i);
+//   if (objectIdMatch) return objectIdMatch[0];
+//   return text;
+// }
+
+// const ScanQr = () => {
+//   const [code, setCode] = useState("");
+//   const [scanning, setScanning] = useState(false);
+//   const [scanResult, setScanResult] = useState("");
+//   const [error, setError] = useState("");
+//   const [locationError, setLocationError] = useState("");
+//   const [isGettingLocation, setIsGettingLocation] = useState(false);
+//   const html5QrCodeRef = useRef(null);
+//   const qrRegionId = "qr-reader-region";
+
+//   const { CurrentUser, authToken } = useAuth();
+
+//   const studentId =
+//     CurrentUser?.existuser?._id ||
+//     CurrentUser?.studentId ||
+//     CurrentUser?._id ||
+//     "";
+
+//   // Play success sound safely
+//   const playSuccessSound = () => {
+//     const audio = new Audio(Sounds.Success);
+//     audio.play().catch(() => {}); // prevent autoplay errors
+//   };
+
+//   // Safe cleanup on unmount
+//   useEffect(() => {
+//     return () => {
+//       const cleanUpScanner = async () => {
+//         try {
+//           if (html5QrCodeRef.current) {
+//             if (html5QrCodeRef.current._isScanning) {
+//               await html5QrCodeRef.current.stop();
+//             }
+//             await html5QrCodeRef.current.clear();
+//           }
+//         } catch (err) {
+//           console.warn("QR cleanup failed:", err);
+//         } finally {
+//           html5QrCodeRef.current = null;
+//         }
+//       };
+//       cleanUpScanner();
+//     };
+//   }, []);
+
+//   // Location helper
+//   const getLocation = () => {
+//     return new Promise((resolve, reject) => {
+//       if (!("geolocation" in navigator)) {
+//         reject("Geolocation is not supported by your browser.");
+//         return;
+//       }
+//       navigator.geolocation.getCurrentPosition(
+//         (pos) => {
+//           resolve({
+//             latitude: pos.coords.latitude,
+//             longitude: pos.coords.longitude,
+//           });
+//         },
+//         () => {
+//           reject("Unable to retrieve your location. Please allow access.");
+//         }
+//       );
+//     });
+//   };
+
+//   // Handle QR found
+//   const handleQrFound = async (sessionIdFromQr) => {
+//     const usedSessionId = parseSessionId(sessionIdFromQr);
+
+//     if (!studentId) {
+//       setError("Student ID not found. Please log in again.");
+//       setScanResult("");
+//       return;
+//     }
+//     if (!usedSessionId) {
+//       setError("Invalid QR code.");
+//       setScanResult("");
+//       return;
+//     }
+//     if (!authToken) {
+//       setError("Authentication token missing. Please log in again.");
+//       setScanResult("");
+//       return;
+//     }
+
+//     // Get location
+//     setIsGettingLocation(true);
+//     let currentLocation;
+//     try {
+//       currentLocation = await getLocation();
+//       setLocationError("");
+//     } catch (errMsg) {
+//       setLocationError(errMsg);
+//       setError("Location not available.");
+//       setScanResult("");
+//       setIsGettingLocation(false);
+//       return;
+//     }
+//     setIsGettingLocation(false);
+
+//     try {
+//       const payload = {
+//         studentId,
+//         sessionId: usedSessionId,
+//         lat: currentLocation.latitude,
+//         lng: currentLocation.longitude,
+//       };
+
+//       const result = await sendAttendance({ ...payload, authToken });
+//       setScanResult(result?.message || "Attendance marked successfully!");
+//       playSuccessSound();
+//       setError("");
+//       stopCameraScan(); // ✅ stop only on success
+//     } catch (err) {
+//       const data = err?.response?.data;
+//       const serverMsg =
+//         typeof data === "string"
+//           ? data
+//           : data?.error ?? data?.message ?? err?.message ?? "Request failed";
+//       if (serverMsg) setError(serverMsg);
+//       setScanResult("");
+//     }
+//   };
+
+//   // Start scanning
+//   const startCameraScan = async () => {
+//     setError("");
+//     setScanResult("");
+//     setScanning(true);
+
+//     if (!Html5Qrcode.getCameras) {
+//       setError("Camera access is not supported on this device/browser.");
+//       setScanning(false);
+//       return;
+//     }
+
+//     try {
+//       const cameras = await Html5Qrcode.getCameras();
+//       if (!cameras || cameras.length === 0) {
+//         setError("No camera found on this device.");
+//         setScanning(false);
+//         return;
+//       }
+
+//       let cameraId = cameras[0].id;
+//       const backCamera = cameras.find(
+//         (cam) => cam.label && /back|environment/i.test(cam.label)
+//       );
+//       if (backCamera) cameraId = backCamera.id;
+
+//       if (!html5QrCodeRef.current) {
+//         html5QrCodeRef.current = new Html5Qrcode(qrRegionId);
+//       }
+
+//       await html5QrCodeRef.current.start(
+//         { deviceId: { exact: cameraId } }, // ✅ only deviceId
+//         { fps: 10, qrbox: { width: 250, height: 250 } },
+//         async (decodedText) => {
+//           setScanResult(decodedText);
+//           setCode(decodedText);
+//           await handleQrFound(decodedText);
+//         }
+//       );
+//     } catch (err) {
+//       setError("Unable to access camera: " + (err?.message || err));
+//       setScanning(false);
+//     }
+//   };
+
+//   // Stop scanning safely
+//   const stopCameraScan = async () => {
+//     setScanning(false);
+//     if (html5QrCodeRef.current) {
+//       try {
+//         if (html5QrCodeRef.current._isScanning) {
+//           await html5QrCodeRef.current.stop();
+//         }
+//         await html5QrCodeRef.current.clear();
+//       } catch (_) {
+//         // ignore errors
+//       }
+//     }
+//   };
+
+//   return (
+//     <div className="flex h-screen w-full bg-gray-50">
+//       <Sidebar />
+//       <div className="flex-1 flex flex-col items-center justify-start p-4 overflow-y-auto">
+//         <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 text-center text-orange-600">
+//           Scan QR Code
+//         </h2>
+
+//         <div className="w-full max-w-2xl bg-white rounded-xl shadow-md p-4 sm:p-6 flex flex-col items-center">
+//           {/* QR Scanner */}
+//           <div className="relative w-full h-[300px] sm:h-[400px] md:h-[70vh] bg-gray-200 flex items-center justify-center rounded-lg mb-4 overflow-hidden">
+//             <div id={qrRegionId} className="w-full h-full" />
+//             {!scanning && (
+//               <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-center bg-gray-100/80 z-10 text-sm">
+//                 Camera preview will appear here
+//               </div>
+//             )}
+//           </div>
+
+//           {/* Success/Error */}
+//           {scanResult && (
+//             <div className="mb-2 text-green-600 font-semibold text-center text-sm sm:text-base">
+//               {scanResult}
+//             </div>
+//           )}
+//           {error && (
+//             <div className="mb-2 text-red-600 font-semibold text-center text-sm sm:text-base">
+//               {error}
+//             </div>
+//           )}
+
+//           {/* Start/Stop Button */}
+//           <div className="flex gap-2 w-full mt-2">
+//             {!scanning ? (
+//               <button
+//                 className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition w-full"
+//                 onClick={startCameraScan}
+//               >
+//                 Start Camera Scan
+//               </button>
+//             ) : (
+//               <button
+//                 className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition w-full"
+//                 onClick={stopCameraScan}
+//               >
+//                 Stop Scan
+//               </button>
+//             )}
+//           </div>
+
+//           {/* Manual Input */}
+//           <div className="mt-6 w-full">
+//             <label
+//               className="block text-gray-700 mb-2 text-sm"
+//               htmlFor="manual-qr"
+//             >
+//               Or enter QR code manually:
+//             </label>
+//             <input
+//               id="manual-qr"
+//               type="text"
+//               className="w-full border border-gray-300 rounded px-3 py-2 mb-2 text-sm sm:text-base outline-orange-400"
+//               placeholder="Enter QR code"
+//               value={code}
+//               onChange={(e) => setCode(e.target.value)}
+//             />
+//             <button
+//               className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition w-full"
+//               onClick={async () => await handleQrFound(code)}
+//             >
+//               Submit
+//             </button>
+//           </div>
+
+//           {locationError && (
+//             <div className="mt-2 text-red-500 text-center text-sm">
+//               {locationError}
+//             </div>
+//           )}
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default ScanQr;
+
+
 import React, { useState, useRef, useEffect } from "react";
 import Sidebar from "../../Sidebar/Sidebar";
 import { Html5Qrcode } from "html5-qrcode";
@@ -714,7 +1048,6 @@ import { useAuth } from "../../../Context/AuthContext";
 import axiosInstance from "../../../api/axiosInstance";
 import Sounds from "../../../assets/Sounds";
 
-// API call
 async function sendAttendance({ studentId, sessionId, lat, lng, authToken }) {
   try {
     const response = await axiosInstance.post(
@@ -733,10 +1066,8 @@ async function sendAttendance({ studentId, sessionId, lat, lng, authToken }) {
   }
 }
 
-// Parse session ID from QR
 function parseSessionId(raw) {
   if (!raw) return "";
-
   try {
     const asJson = JSON.parse(raw);
     const candidates = [asJson.sessionId, asJson.sessionID, asJson.id];
@@ -748,7 +1079,6 @@ function parseSessionId(raw) {
   } catch (_) {}
 
   const text = String(raw).trim();
-
   try {
     const url = new URL(text);
     const fromQuery =
@@ -756,12 +1086,8 @@ function parseSessionId(raw) {
       url.searchParams.get("sessionID") ||
       url.searchParams.get("id");
     if (fromQuery && fromQuery.trim()) return fromQuery.trim();
-
     const parts = url.pathname.split("/").filter(Boolean);
-    if (parts.length > 0) {
-      const last = parts[parts.length - 1];
-      if (last && last.trim()) return last.trim();
-    }
+    if (parts.length > 0) return parts[parts.length - 1].trim();
   } catch (_) {}
 
   const objectIdMatch = text.match(/[a-f0-9]{24}/i);
@@ -769,56 +1095,57 @@ function parseSessionId(raw) {
   return text;
 }
 
+// 🔔 Modal Component
+const NotificationModal = ({ message, type, onClose }) => {
+  if (!message) return null;
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+      <div className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full text-center">
+        <h3
+          className={`text-lg font-bold mb-3 ${
+            type === "success" ? "text-green-600" : "text-red-600"
+          }`}
+        >
+          {type === "success" ? "✅ Success" : "⚠️ Notice"}
+        </h3>
+        <p className="text-gray-700 mb-4">{message}</p>
+        <button
+          onClick={onClose}
+          className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition"
+        >
+          OK
+        </button>
+      </div>
+    </div>
+  );
+};
+
 const ScanQr = () => {
   const [code, setCode] = useState("");
   const [scanning, setScanning] = useState(false);
-  const [scanResult, setScanResult] = useState("");
   const [error, setError] = useState("");
+  const [location, setLocation] = useState({ latitude: null, longitude: null });
   const [locationError, setLocationError] = useState("");
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const html5QrCodeRef = useRef(null);
   const qrRegionId = "qr-reader-region";
 
-  const { CurrentUser, authToken } = useAuth();
+  // 🔔 Modal state
+  const [modalMessage, setModalMessage] = useState("");
+  const [modalType, setModalType] = useState("success");
 
+  const [SuccessSound] = useState(new Audio(Sounds.Success));
+  const { CurrentUser, authToken } = useAuth();
   const studentId =
     CurrentUser?.existuser?._id ||
     CurrentUser?.studentId ||
     CurrentUser?._id ||
     "";
 
-  // Play success sound safely
-  const playSuccessSound = () => {
-    const audio = new Audio(Sounds.Success);
-    audio.play().catch(() => {}); // prevent autoplay errors
-  };
-
-  // Safe cleanup on unmount
-  useEffect(() => {
-    return () => {
-      const cleanUpScanner = async () => {
-        try {
-          if (html5QrCodeRef.current) {
-            if (html5QrCodeRef.current._isScanning) {
-              await html5QrCodeRef.current.stop();
-            }
-            await html5QrCodeRef.current.clear();
-          }
-        } catch (err) {
-          console.warn("QR cleanup failed:", err);
-        } finally {
-          html5QrCodeRef.current = null;
-        }
-      };
-      cleanUpScanner();
-    };
-  }, []);
-
-  // Location helper
   const getLocation = () => {
     return new Promise((resolve, reject) => {
       if (!("geolocation" in navigator)) {
-        reject("Geolocation is not supported by your browser.");
+        reject("Geolocation not supported.");
         return;
       }
       navigator.geolocation.getCurrentPosition(
@@ -828,47 +1155,78 @@ const ScanQr = () => {
             longitude: pos.coords.longitude,
           });
         },
-        () => {
-          reject("Unable to retrieve your location. Please allow access.");
+        (err) => {
+          reject("Unable to retrieve location. " + err.message);
         }
       );
     });
   };
 
-  // Handle QR found
+  useEffect(() => {
+    setIsGettingLocation(true);
+    getLocation()
+      .then((loc) => {
+        setLocation(loc);
+        setLocationError("");
+      })
+      .catch((errMsg) => {
+        setLocationError(errMsg);
+        setLocation({ latitude: null, longitude: null });
+      })
+      .finally(() => setIsGettingLocation(false));
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (html5QrCodeRef.current) {
+        html5QrCodeRef.current.stop().catch(() => {});
+        html5QrCodeRef.current.clear().catch(() => {});
+      }
+    };
+  }, []);
+
   const handleQrFound = async (sessionIdFromQr) => {
     const usedSessionId = parseSessionId(sessionIdFromQr);
 
     if (!studentId) {
-      setError("Student ID not found. Please log in again.");
-      setScanResult("");
+      setModalType("error");
+      setModalMessage("Student ID not found. Please log in again.");
       return;
     }
     if (!usedSessionId) {
-      setError("Invalid QR code.");
-      setScanResult("");
-      return;
-    }
-    if (!authToken) {
-      setError("Authentication token missing. Please log in again.");
-      setScanResult("");
+      setModalType("error");
+      setModalMessage("Invalid QR code.");
       return;
     }
 
-    // Get location
     setIsGettingLocation(true);
-    let currentLocation;
+    let currentLocation = location;
     try {
       currentLocation = await getLocation();
+      setLocation(currentLocation);
       setLocationError("");
     } catch (errMsg) {
-      setLocationError(errMsg);
-      setError("Location not available.");
-      setScanResult("");
+      setModalType("error");
+      setModalMessage("Location not available. Please allow location access.");
       setIsGettingLocation(false);
       return;
     }
     setIsGettingLocation(false);
+
+    if (
+      !currentLocation ||
+      currentLocation.latitude == null ||
+      currentLocation.longitude == null
+    ) {
+      setModalType("error");
+      setModalMessage("Location not available. Please enable location.");
+      return;
+    }
+    if (!authToken) {
+      setModalType("error");
+      setModalMessage("Authentication missing. Please log in again.");
+      return;
+    }
 
     try {
       const payload = {
@@ -877,80 +1235,70 @@ const ScanQr = () => {
         lat: currentLocation.latitude,
         lng: currentLocation.longitude,
       };
-
       const result = await sendAttendance({ ...payload, authToken });
-      setScanResult(result?.message || "Attendance marked successfully!");
-      playSuccessSound();
+
+      setModalType("success");
+      setModalMessage(result?.message || "Attendance marked successfully!");
+      SuccessSound.play();
       setError("");
-      stopCameraScan(); // ✅ stop only on success
     } catch (err) {
       const data = err?.response?.data;
       const serverMsg =
         typeof data === "string"
           ? data
           : data?.error ?? data?.message ?? err?.message ?? "Request failed";
-      if (serverMsg) setError(serverMsg);
-      setScanResult("");
+
+      setModalType("error");
+      setModalMessage(serverMsg);
     }
   };
 
-  // Start scanning
   const startCameraScan = async () => {
     setError("");
-    setScanResult("");
     setScanning(true);
-
-    if (!Html5Qrcode.getCameras) {
-      setError("Camera access is not supported on this device/browser.");
-      setScanning(false);
-      return;
-    }
 
     try {
       const cameras = await Html5Qrcode.getCameras();
       if (!cameras || cameras.length === 0) {
-        setError("No camera found on this device.");
+        setError("No camera found.");
         setScanning(false);
         return;
       }
 
-      let cameraId = cameras[0].id;
-      const backCamera = cameras.find(
-        (cam) => cam.label && /back|environment/i.test(cam.label)
-      );
-      if (backCamera) cameraId = backCamera.id;
+      let cameraConfig = null;
+      const backCam = cameras.find((c) => /back|environment/i.test(c.label));
+      if (backCam) {
+        cameraConfig = { deviceId: { exact: backCam.id } };
+      } else {
+        cameraConfig = { facingMode: "environment" };
+      }
 
       if (!html5QrCodeRef.current) {
         html5QrCodeRef.current = new Html5Qrcode(qrRegionId);
       }
 
       await html5QrCodeRef.current.start(
-        { deviceId: { exact: cameraId } }, // ✅ only deviceId
+        cameraConfig,
         { fps: 10, qrbox: { width: 250, height: 250 } },
         async (decodedText) => {
-          setScanResult(decodedText);
           setCode(decodedText);
           await handleQrFound(decodedText);
+          stopCameraScan();
         }
       );
     } catch (err) {
-      setError("Unable to access camera: " + (err?.message || err));
+      setError("Camera access failed: " + (err?.message || err));
       setScanning(false);
     }
   };
 
-  // Stop scanning safely
   const stopCameraScan = async () => {
     setScanning(false);
     if (html5QrCodeRef.current) {
       try {
-        if (html5QrCodeRef.current._isScanning) {
-          await html5QrCodeRef.current.stop();
-        }
+        await html5QrCodeRef.current.stop();
         await html5QrCodeRef.current.clear();
-      } catch (_) {
-        // ignore errors
-      }
+      } catch (_) {}
     }
   };
 
@@ -963,7 +1311,6 @@ const ScanQr = () => {
         </h2>
 
         <div className="w-full max-w-2xl bg-white rounded-xl shadow-md p-4 sm:p-6 flex flex-col items-center">
-          {/* QR Scanner */}
           <div className="relative w-full h-[300px] sm:h-[400px] md:h-[70vh] bg-gray-200 flex items-center justify-center rounded-lg mb-4 overflow-hidden">
             <div id={qrRegionId} className="w-full h-full" />
             {!scanning && (
@@ -973,26 +1320,22 @@ const ScanQr = () => {
             )}
           </div>
 
-          {/* Success/Error */}
-          {scanResult && (
-            <div className="mb-2 text-green-600 font-semibold text-center text-sm sm:text-base">
-              {scanResult}
-            </div>
-          )}
           {error && (
             <div className="mb-2 text-red-600 font-semibold text-center text-sm sm:text-base">
               {error}
             </div>
           )}
 
-          {/* Start/Stop Button */}
           <div className="flex gap-2 w-full mt-2">
             {!scanning ? (
               <button
                 className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition w-full"
                 onClick={startCameraScan}
+                disabled={isGettingLocation}
               >
-                Start Camera Scan
+                {isGettingLocation
+                  ? "Getting Location..."
+                  : "Start Camera Scan"}
               </button>
             ) : (
               <button
@@ -1004,7 +1347,6 @@ const ScanQr = () => {
             )}
           </div>
 
-          {/* Manual Input */}
           <div className="mt-6 w-full">
             <label
               className="block text-gray-700 mb-2 text-sm"
@@ -1019,12 +1361,14 @@ const ScanQr = () => {
               placeholder="Enter QR code"
               value={code}
               onChange={(e) => setCode(e.target.value)}
+              disabled={isGettingLocation}
             />
             <button
               className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition w-full"
               onClick={async () => await handleQrFound(code)}
+              disabled={isGettingLocation}
             >
-              Submit
+              {isGettingLocation ? "Getting Location..." : "Submit"}
             </button>
           </div>
 
@@ -1035,6 +1379,13 @@ const ScanQr = () => {
           )}
         </div>
       </div>
+
+      {/* 🔔 Modal Notification */}
+      <NotificationModal
+        message={modalMessage}
+        type={modalType}
+        onClose={() => setModalMessage("")}
+      />
     </div>
   );
 };
