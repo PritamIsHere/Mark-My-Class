@@ -145,7 +145,7 @@ import axiosInstance from "../../../api/axiosInstance";
 import { useAuth } from "../../../Context/AuthContext";
 import toast from "react-hot-toast";
 import { Loader2 } from "lucide-react";
-import ConfirmModal from "../../../components/ConfirmModal/ConfirmModal";
+import ConfirmModal from "../../../components/Models/ConfirmModal";
 
 const TeacherAttendance = () => {
   const [stats, setStats] = useState([]);
