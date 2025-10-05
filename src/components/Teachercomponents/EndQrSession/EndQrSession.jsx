@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import axios from "axios";
-
-const API_URL = "https://sih-2025-backend.onrender.com";
-const orange = "#fb8c00";
+import { useState } from "react";
+import Sidebar from "../../Sidebar/Sidebar";
+import axiosInstance from "../../../api/axiosInstance";
+import { useAuth } from "../../../Context/AuthContext";
+const orange = "#ff642a";
 
 const styles = {
   container: {
@@ -104,7 +104,7 @@ const EndQrSession = () => {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const token = localStorage.getItem("token");
+  const { authToken } = useAuth();
 
   const handleEndSession = async (e) => {
     e.preventDefault();
@@ -114,10 +114,10 @@ const EndQrSession = () => {
     setSession(null);
 
     try {
-      const res = await axios.post(
-        `${API_URL}/session/end`,
+      const res = await axiosInstance.post(
+        `/session/end`,
         { sessionId },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${authToken}` } }
       );
       setMessage(res.data.message);
       setSession(res.data.session);
@@ -132,36 +132,39 @@ const EndQrSession = () => {
   };
 
   return (
-    <div style={responsiveStyle(styles.container)}>
-      <div style={responsiveStyle(styles.title)}>End QR Session</div>
-      <form onSubmit={handleEndSession}>
-        <label style={styles.label}>Session ID:</label>
-        <input
-          style={styles.input}
-          type="text"
-          value={sessionId}
-          onChange={(e) => setSessionId(e.target.value)}
-          required
-          placeholder="Enter Session ID"
-        />
-        <button type="submit" style={styles.button} disabled={loading}>
-          {loading ? "Ending..." : "End Session"}
-        </button>
-      </form>
-      {error && <div style={styles.error}>{error}</div>}
-      {message && (
-        <div style={styles.message}>
-          {message}
-          {session && (
-            <div style={styles.sessionInfo}>
-              <strong>Session Info:</strong>
-              <pre style={{ margin: 0 }}>
-                {JSON.stringify(session, null, 2)}
-              </pre>
-            </div>
-          )}
-        </div>
-      )}
+    <div className="flex h-screen bg-white">
+      <Sidebar />
+      <div style={responsiveStyle(styles.container)}>
+        <div style={responsiveStyle(styles.title)}>End QR Session</div>
+        <form onSubmit={handleEndSession}>
+          <label style={styles.label}>Session ID:</label>
+          <input
+            style={styles.input}
+            type="text"
+            value={sessionId}
+            onChange={(e) => setSessionId(e.target.value)}
+            required
+            placeholder="Enter Session ID"
+          />
+          <button type="submit" style={styles.button} disabled={loading}>
+            {loading ? "Ending..." : "End Session"}
+          </button>
+        </form>
+        {error && <div style={styles.error}>{error}</div>}
+        {message && (
+          <div style={styles.message}>
+            {message}
+            {session && (
+              <div style={styles.sessionInfo}>
+                <strong>Session Info:</strong>
+                <pre style={{ margin: 0 }}>
+                  {JSON.stringify(session, null, 2)}
+                </pre>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

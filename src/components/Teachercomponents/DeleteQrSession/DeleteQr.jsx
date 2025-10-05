@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import axios from "axios";
-
-const API_URL = "https://sih-2025-backend.onrender.com";
-const orange = "#fb8c00";
+import Sidebar from "../../Sidebar/Sidebar";
+import axiosInstance from "../../../api/axiosInstance";
+import { useAuth } from "../../../Context/AuthContext";
+const orange = "#ff642a";
 
 const styles = {
   container: {
@@ -90,7 +90,7 @@ const DeleteQr = () => {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const token = localStorage.getItem("token");
+  const { authToken } = useAuth();
 
   const handleDeleteSession = async (e) => {
     e.preventDefault();
@@ -98,8 +98,8 @@ const DeleteQr = () => {
     setError("");
     setMessage("");
     try {
-      const res = await axios.delete(`${API_URL}/session/delete`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const res = await axiosInstance.delete(`/session/delete`, {
+        headers: { Authorization: `Bearer ${authToken}` },
         data: { sessionId },
       });
       setMessage(res.data.message);
@@ -114,24 +114,27 @@ const DeleteQr = () => {
   };
 
   return (
-    <div style={responsiveStyle(styles.container)}>
-      <div style={responsiveStyle(styles.title)}>Delete QR Session</div>
-      <form onSubmit={handleDeleteSession}>
-        <label style={styles.label}>Session ID:</label>
-        <input
-          style={styles.input}
-          type="text"
-          value={sessionId}
-          onChange={(e) => setSessionId(e.target.value)}
-          required
-          placeholder="Enter Session ID"
-        />
-        <button type="submit" style={styles.button} disabled={loading}>
-          {loading ? "Deleting..." : "Delete Session"}
-        </button>
-      </form>
-      {error && <div style={styles.error}>{error}</div>}
-      {message && <div style={styles.message}>{message}</div>}
+    <div className="flex h-screen bg-white">
+      <Sidebar />
+      <div style={responsiveStyle(styles.container)}>
+        <div style={responsiveStyle(styles.title)}>Delete QR Session</div>
+        <form onSubmit={handleDeleteSession}>
+          <label style={styles.label}>Session ID:</label>
+          <input
+            style={styles.input}
+            type="text"
+            value={sessionId}
+            onChange={(e) => setSessionId(e.target.value)}
+            required
+            placeholder="Enter Session ID"
+          />
+          <button type="submit" style={styles.button} disabled={loading}>
+            {loading ? "Deleting..." : "Delete Session"}
+          </button>
+        </form>
+        {error && <div style={styles.error}>{error}</div>}
+        {message && <div style={styles.message}>{message}</div>}
+      </div>
     </div>
   );
 };

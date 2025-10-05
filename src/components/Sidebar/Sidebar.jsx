@@ -25,7 +25,7 @@ const Sidebar = () => {
     logout();
     toast.success("Logout successfully");
     navigate("/login");
-    window.location.reload();
+    // window.location.reload();
   };
 
   const baseClass = "flex items-center gap-3 p-3 rounded-lg transition";
@@ -61,16 +61,16 @@ const Sidebar = () => {
         label: "Create",
         icon: <QrCode size={20} />,
       },
-      {
-        to: "/teacher/end-qr-session",
-        label: "End QR",
-        icon: <QrCode size={20} />,
-      },
-      {
-        to: "/teacher/delete-qr-session",
-        label: "Delete",
-        icon: <QrCode size={20} />,
-      },
+      // {
+      //   to: "/teacher/end-qr-session",
+      //   label: "End QR",
+      //   icon: <QrCode size={20} />,
+      // },
+      // {
+      //   to: "/teacher/delete-qr-session",
+      //   label: "Delete",
+      //   icon: <QrCode size={20} />,
+      // },
       {
         to: "/teacher/attendance",
         label: "Attend",
@@ -83,11 +83,11 @@ const Sidebar = () => {
         label: "Scan",
         icon: <QrCode size={20} />,
       },
-      {
-        to: "/student/attendance",
-        label: "Attend",
-        icon: <ClipboardList size={20} />,
-      },
+      // {
+      //   to: "/student/attendance",
+      //   label: "Attend",
+      //   icon: <ClipboardList size={20} />,
+      // },
       {
         to: "/student/leaderboard",
         label: "Rank",
@@ -176,7 +176,7 @@ const Sidebar = () => {
                 <NavLink to="/teacher/create-qr-code" className={getLinkClass}>
                   <QrCode size={18} /> Create QR Code
                 </NavLink>
-                <NavLink to="/teacher/end-qr-session" className={getLinkClass}>
+                {/* <NavLink to="/teacher/end-qr-session" className={getLinkClass}>
                   <QrCode size={18} /> End QR Session
                 </NavLink>
                 <NavLink
@@ -184,7 +184,7 @@ const Sidebar = () => {
                   className={getLinkClass}
                 >
                   <QrCode size={18} /> Delete QR Session
-                </NavLink>
+                </NavLink> */}
                 <NavLink to="/teacher/attendance" className={getLinkClass}>
                   <ClipboardList size={18} /> Attendance
                 </NavLink>
@@ -196,9 +196,9 @@ const Sidebar = () => {
                 <NavLink to="/student/scan-qr-code" className={getLinkClass}>
                   <QrCode size={18} /> Scan QR Code
                 </NavLink>
-                <NavLink to="/student/attendance" className={getLinkClass}>
+                {/* <NavLink to="/student/attendance" className={getLinkClass}>
                   <ClipboardList size={18} /> Attendance
-                </NavLink>
+                </NavLink> */}
                 <NavLink to="/student/leaderboard" className={getLinkClass}>
                   <BarChart2 size={18} /> Leaderboard
                 </NavLink>

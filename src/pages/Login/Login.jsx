@@ -35,9 +35,9 @@ export default function LoginPage() {
         setShowPassModel(true);
       } else {
         await login(response?.data?.token);
-        window.location.reload();
         toast.success("Login Successful");
         navigate("/");
+        window.location.reload();
       }
     } catch (err) {
       toast.error("Login failed, please try again.");

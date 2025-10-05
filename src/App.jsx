@@ -32,7 +32,6 @@ import TeacherAttendence from "./components/Teachercomponents/TeachersAttendance
 
 import ScanQr from "./components/Studentcomponents/ScanQr/ScanQr";
 import StudentLeaderBoard from "./components/Studentcomponents/StudentLeaderBoard/StudentLeaderBoard";
-import StudentAttendence from "./components/Studentcomponents/StudentAttendance/StudentAttendence";
 import Error from "./pages/Error/Error";
 
 const App = () => {
@@ -153,17 +152,6 @@ const App = () => {
                 <PrivateRoute>
                   <StudentRoute>
                     <ScanQr />
-                  </StudentRoute>
-                </PrivateRoute>
-              }
-            />
-
-            <Route
-              path="/student/attendance"
-              element={
-                <PrivateRoute>
-                  <StudentRoute>
-                    <StudentAttendence />
                   </StudentRoute>
                 </PrivateRoute>
               }
