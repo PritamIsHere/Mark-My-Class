@@ -15,18 +15,18 @@ const StudentLeaderBoard = () => {
         <div className="w-full max-w-4xl bg-white rounded-lg shadow-md p-3 sm:p-6 mt-4">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200 text-sm sm:text-base">
-              <thead>
+              <thead className="bg-orange-500 text-white font-bold">
                 <tr>
-                  <th className="px-2 sm:px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  <th className="px-2 sm:px-4 py-2 text-left text-xs font-semibold uppercase tracking-wider">
                     Rank
                   </th>
-                  <th className="px-2 sm:px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  <th className="px-2 sm:px-4 py-2 text-left text-xs font-semibold uppercase tracking-wider">
                     Name
                   </th>
-                  <th className="px-2 sm:px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  <th className="px-2 sm:px-4 py-2 text-left text-xs font-semibold uppercase tracking-wider">
                     Roll No
                   </th>
-                  <th className="px-2 sm:px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  <th className="px-2 sm:px-4 py-2 text-left text-xs font-semibold uppercase tracking-wider">
                     Attendance (%)
                   </th>
                 </tr>
@@ -48,11 +48,7 @@ const StudentLeaderBoard = () => {
                   .map((student, idx) => (
                     <tr
                       key={student.roll}
-                      className={`transition-colors duration-200 ${
-                        idx === 0
-                          ? "bg-orange-500 text-white font-bold"
-                          : "hover:bg-orange-100"
-                      }`}
+                      className={`transition-colors duration-200 hover:bg-orange-100`}
                     >
                       <td className="px-2 sm:px-4 py-2">{idx + 1}</td>
                       <td className="px-2 sm:px-4 py-2">{student.name}</td>
@@ -65,9 +61,9 @@ const StudentLeaderBoard = () => {
               </tbody>
             </table>
           </div>
-          <p className="text-xs text-gray-500 mt-3 text-center sm:text-left">
+          {/* <p className="text-xs text-gray-500 mt-3 text-center sm:text-left">
             * Top 10 students with highest attendance are shown.
-          </p>
+          </p> */}
         </div>
       </div>
     </div>
