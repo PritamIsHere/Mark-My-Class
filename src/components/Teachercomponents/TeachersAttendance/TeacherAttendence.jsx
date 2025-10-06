@@ -339,40 +339,43 @@ const TeacherAttendance = () => {
                       {stat.status}
                     </td>
                     <td className="py-3 px-4 text-center flex justify-center gap-2">
-                      <button
-                        onClick={() => {
-                          setConfirmOpen(true);
-                          setConfirmConfig({
-                            title: "End Class",
-                            message:
-                              "Are you sure you want to end this session?",
-                            type: "warning",
-                          });
-                          setConfirmAction(
-                            () => () => endSession(stat.sessionId)
-                          );
-                        }}
-                        className="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-8 rounded-md font-semibold transition flex justify-center items-center"
-                        disabled={
-                          actionLoading.endId === stat.sessionId ||
-                          actionLoading.deleteId === stat.sessionId
-                        }
-                      >
-                        <span
-                          className={`transition-opacity ${
-                            actionLoading.endId === stat.sessionId
-                              ? "opacity-0"
-                              : "opacity-100"
-                          }`}
+                      {stat.status !== "inactive" && (
+                        <button
+                          onClick={() => {
+                            setConfirmOpen(true);
+                            setConfirmConfig({
+                              title: "End Class",
+                              message:
+                                "Are you sure you want to end this session?",
+                              type: "warning",
+                            });
+                            setConfirmAction(
+                              () => () => endSession(stat.sessionId)
+                            );
+                          }}
+                          className="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-8 rounded-md font-semibold transition flex justify-center items-center"
+                          disabled={
+                            actionLoading.endId === stat.sessionId ||
+                            actionLoading.deleteId === stat.sessionId
+                          }
                         >
-                          End
-                        </span>
-                        {actionLoading.endId === stat.sessionId && (
-                          <>
-                            <div className="absolute w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          </>
-                        )}
-                      </button>
+                          <span
+                            className={`transition-opacity ${
+                              actionLoading.endId === stat.sessionId
+                                ? "opacity-0"
+                                : "opacity-100"
+                            }`}
+                          >
+                            End
+                          </span>
+                          {actionLoading.endId === stat.sessionId && (
+                            <>
+                              <div className="absolute w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            </>
+                          )}
+                        </button>
+                      )}
+
                       <button
                         onClick={() => {
                           setConfirmOpen(true);
@@ -386,7 +389,9 @@ const TeacherAttendance = () => {
                             () => () => deleteSession(stat.sessionId)
                           );
                         }}
-                        className="relative bg-red-500 hover:bg-red-600 text-white py-2 px-8 rounded-md font-semibold transition flex justify-center items-center"
+                        className={`${
+                          stat.status === "inactive" ? "w-full" : ""
+                        } relative bg-red-500 hover:bg-red-600 text-white py-2 px-8 rounded-md font-semibold transition flex justify-center items-center`}
                         disabled={
                           actionLoading.deleteId === stat.sessionId ||
                           actionLoading.endId === stat.sessionId
@@ -445,33 +450,36 @@ const TeacherAttendance = () => {
                     {stat.sessionId}
                   </p>
                   <div className="flex gap-2 mt-2">
-                    <button
-                      onClick={() => {
-                        setConfirmOpen(true);
-                        setConfirmConfig({
-                          title: "End Class",
-                          message: "Are you sure you want to end this session?",
-                          type: "warning",
-                        });
-                        setConfirmAction(
-                          () => () => endSession(stat.sessionId)
-                        );
-                      }}
-                      disabled={
-                        actionLoading.endId === stat.sessionId ||
-                        actionLoading.deleteId === stat.sessionId
-                      }
-                      className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded-md font-semibold transition flex justify-center items-center gap-3 disabled:opacity-80"
-                    >
-                      {actionLoading.endId === stat.sessionId ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          Ending...
-                        </>
-                      ) : (
-                        "End"
-                      )}
-                    </button>
+                    {stat.status !== "inactive" && (
+                      <button
+                        onClick={() => {
+                          setConfirmOpen(true);
+                          setConfirmConfig({
+                            title: "End Class",
+                            message:
+                              "Are you sure you want to end this session?",
+                            type: "warning",
+                          });
+                          setConfirmAction(
+                            () => () => endSession(stat.sessionId)
+                          );
+                        }}
+                        disabled={
+                          actionLoading.endId === stat.sessionId ||
+                          actionLoading.deleteId === stat.sessionId
+                        }
+                        className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded-md font-semibold transition flex justify-center items-center gap-3 disabled:opacity-80"
+                      >
+                        {actionLoading.endId === stat.sessionId ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            Ending...
+                          </>
+                        ) : (
+                          "End"
+                        )}
+                      </button>
+                    )}
 
                     <button
                       onClick={() => {
