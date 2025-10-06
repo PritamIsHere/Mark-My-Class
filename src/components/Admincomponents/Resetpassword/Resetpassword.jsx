@@ -84,6 +84,7 @@ const ResetPassword = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
+                  disabled={loading}
                   required
                   placeholder="Enter your email"
                   className="mt-1 w-full border border-orange-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -100,6 +101,7 @@ const ResetPassword = () => {
                   name="tempPassword"
                   value={formData.tempPassword}
                   onChange={handleChange}
+                  disabled={loading}
                   required
                   placeholder="Enter new password"
                   className="mt-1 w-full border border-orange-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -107,6 +109,7 @@ const ResetPassword = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
+                  disabled={loading}
                   className="absolute right-3 top-9 text-gray-500 hover:text-orange-600"
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -123,19 +126,26 @@ const ResetPassword = () => {
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
+                  disabled={loading}
                   required
                   placeholder="Re-enter new password"
                   className="mt-1 w-full border border-orange-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
               </div>
 
-              {/* Submit */}
+              {/* Reset password */}
               <button
-                type="submit"
+                className="bg-orange-500 font-semibold text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition w-full flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={loading}
-                className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 rounded-lg shadow-md transition"
               >
-                {loading ? "Resetting..." : "Reset Password"}
+                {loading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Resetting...
+                  </>
+                ) : (
+                  "Reset Password"
+                )}
               </button>
             </form>
           </div>

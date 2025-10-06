@@ -439,7 +439,8 @@ import Sidebar from "../../Sidebar/Sidebar";
 import axiosInstance from "../../../api/axiosInstance";
 import { useAuth } from "../../../Context/AuthContext";
 
-import { Check, X } from "lucide-react";
+import { Check, ClipboardCopy, Share2, X } from "lucide-react";
+import toast from "react-hot-toast";
 
 const CreateQr = () => {
   const [department, setDepartment] = useState("");
@@ -455,6 +456,7 @@ const CreateQr = () => {
   const [error, setError] = useState("");
   const [locationLocked, setLocationLocked] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [copying, setCopying] = useState(false);
   const [actionLoading, setActionLoading] = useState({
     end: false,
     delete: false,
@@ -583,7 +585,7 @@ const CreateQr = () => {
         setModalVisible(false);
         setQrImage("");
         setSession(null);
-      }, 2000);
+      }, 500);
     } catch (err) {
       setActionMessage((prev) => ({
         ...prev,
@@ -613,7 +615,7 @@ const CreateQr = () => {
         setModalVisible(false);
         setQrImage("");
         setSession(null);
-      }, 2000);
+      }, 500);
     } catch (err) {
       setActionMessage((prev) => ({
         ...prev,
@@ -652,6 +654,23 @@ const CreateQr = () => {
       }
     } catch (error) {
       console.error("Error sharing QR code:", error);
+    }
+  };
+
+  const handelCopyQr = async () => {
+    if (!qrImage) return;
+
+    try {
+      setCopying(true);
+      const response = await fetch(qrImage);
+      const blob = await response.blob();
+      const data = [new ClipboardItem({ [blob.type]: blob })];
+      await navigator.clipboard.write(data);
+      toast.success("Image copied to clipboard!");
+    } catch (error) {
+      toast.error("Copy failed — your browser may not support image copying.");
+    } finally {
+      setCopying(false);
     }
   };
 
@@ -708,7 +727,7 @@ const CreateQr = () => {
                 value={subjectId}
                 onChange={(e) => setSubjectId(e.target.value)}
                 required
-                disabled={subjectSelectDisabled}
+                disabled={subjectSelectDisabled || loading}
                 className="w-full border border-orange-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none disabled:bg-orange-50"
               >
                 <option value="">Select Subject</option>
@@ -735,6 +754,7 @@ const CreateQr = () => {
                 <input
                   type="text"
                   value={lat}
+                  required
                   onChange={(e) => !locationLocked && setLat(e.target.value)}
                   placeholder="Mandatory"
                   readOnly={locationLocked}
@@ -748,6 +768,7 @@ const CreateQr = () => {
                 <input
                   type="text"
                   value={lng}
+                  required
                   onChange={(e) => !locationLocked && setLng(e.target.value)}
                   placeholder="Mandatory"
                   readOnly={locationLocked}
@@ -773,7 +794,7 @@ const CreateQr = () => {
             {/* WiFi Check */}
             <div
               className="flex items-center gap-2 cursor-pointer select-none"
-              onClick={() => setWifiCheckEnabled(!wifiCheckEnabled)}
+              onClick={() => !loading && setWifiCheckEnabled(!wifiCheckEnabled)}
             >
               <div
                 className={`w-5 h-5 flex items-center justify-center rounded border transition-colors
@@ -796,11 +817,17 @@ const CreateQr = () => {
 
             {/* Generate Button */}
             <button
-              type="submit"
-              disabled={loading || subjectSelectDisabled}
-              className="w-full py-3 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 transition disabled:bg-orange-500 disabled:cursor-not-allowed"
+              className="bg-orange-500 font-semibold text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition w-full flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={loading}
             >
-              {loading ? "Creating..." : "Generate QR Code"}
+              {loading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                "Generate QR Code"
+              )}
             </button>
           </form>
 
@@ -832,12 +859,23 @@ const CreateQr = () => {
                   alt="QR Code"
                   className="w-48 h-48 border border-orange-300 rounded-lg shadow-md"
                 />
-                <button
-                  className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition"
-                  onClick={shareQrCode}
-                >
-                  Share QR
-                </button>
+
+                <div className="flex items-center gap-3 justify-center">
+                  <button
+                    onClick={shareQrCode}
+                    className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    <span>Share QR</span>
+                  </button>
+                  <button
+                    onClick={handelCopyQr}
+                    title="Copy QR Code"
+                    className="p-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center"
+                  >
+                    <ClipboardCopy className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
 
               {/* Session Details */}
@@ -891,17 +929,31 @@ const CreateQr = () => {
                   <div className="flex justify-end gap-3 mt-4">
                     <button
                       onClick={handleEndSession}
-                      disabled={actionLoading.end}
-                      className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition disabled:bg-orange-200"
+                      disabled={actionLoading.end || actionLoading.delete}
+                      className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600/80 transition disabled:opacity-80 flex justify-between items-center gap-2"
                     >
-                      {actionLoading.end ? "Ending..." : "End Session"}
+                      {actionLoading.end ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          Ending...
+                        </>
+                      ) : (
+                        "End Session"
+                      )}
                     </button>
                     <button
                       onClick={handleDeleteSession}
-                      disabled={actionLoading.delete}
-                      className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition disabled:bg-orange-200"
+                      disabled={actionLoading.delete || actionLoading.end}
+                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500 transition disabled:opacity-70 flex justify-between items-center gap-2"
                     >
-                      {actionLoading.delete ? "Deleting..." : "Delete Session"}
+                      {actionLoading.delete ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          Deleting...
+                        </>
+                      ) : (
+                        "Delete Session"
+                      )}
                     </button>
                   </div>
 

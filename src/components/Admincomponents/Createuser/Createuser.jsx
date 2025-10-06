@@ -9,6 +9,9 @@ const Createuser = () => {
   const [role, setRole] = useState("student");
   const [subjects, setSubjects] = useState([]);
   const [successData, setSuccessData] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [preview, setPreview] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const { authToken } = useAuth();
 
@@ -31,34 +34,95 @@ const Createuser = () => {
     setSubjects(updated);
   };
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   const data = new FormData(e.target);
+
+  //   const body = {
+  //     name: data.get("name"),
+  //     email: data.get("email"),
+  //     role,
+  //     department: role !== "admin" ? data.get("department") : null,
+  //     semester: role === "student" ? Number(data.get("semester")) : null,
+  //     year: role === "student" ? Number(data.get("year")) : null,
+  //     subjects: role === "teacher" ? subjects : [],
+  //   };
+
+  //   try {
+  //     const res = await axiosInstance.post("/admin/create-user", body, {
+  //       headers: { Authorization: `Bearer ${authToken}` },
+  //     });
+  //     toast.success(
+  //       `${role.charAt(0).toUpperCase() + role.slice(1)} created successfully!`
+  //     );
+  //     setSuccessData({
+  //       role: role,
+  //       email: res.data?.email,
+  //       tempPassword: res.data?.tempPassword,
+  //     });
+  //   } catch (error) {
+  //     toast.error("Failed to create user");
+  //   }
+  // };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const data = new FormData(e.target);
 
-    const body = {
-      name: data.get("name"),
-      email: data.get("email"),
-      role,
-      department: role !== "admin" ? data.get("department") : null,
-      semester: role === "student" ? Number(data.get("semester")) : null,
-      year: role === "student" ? Number(data.get("year")) : null,
-      subjects: role === "teacher" ? subjects : [],
-    };
+    setLoading(true);
+
+    if (loading) return;
+    setLoading(true);
 
     try {
+      const data = new FormData(e.target);
+
+      if (role === "student" && !selectedFile) {
+        toast.error("Please select an image under 80KB");
+        return;
+      }
+
+      const body = new FormData();
+      body.append("name", data.get("name"));
+      body.append("email", data.get("email"));
+      body.append("role", role);
+
+      if (role !== "admin") body.append("department", data.get("department"));
+
+      if (role === "student") {
+        body.append("semester", data.get("semester"));
+        body.append("year", data.get("year"));
+        body.append("avatar", selectedFile);
+      }
+
+      if (role === "teacher") {
+        body.append("subjects", JSON.stringify(subjects));
+      }
+
       const res = await axiosInstance.post("/admin/create-user", body, {
-        headers: { Authorization: `Bearer ${authToken}` },
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "multipart/form-data",
+        },
       });
+
       toast.success(
         `${role.charAt(0).toUpperCase() + role.slice(1)} created successfully!`
       );
+
       setSuccessData({
         role: role,
         email: res.data?.email,
         tempPassword: res.data?.tempPassword,
       });
+
+      e.target.reset();
+      setSubjects([]);
+      setPreview(null);
+      setSelectedFile(null);
     } catch (error) {
-      toast.error("Failed to create user");
+      toast.error(error.response?.data?.message || "Failed to create user");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -83,6 +147,7 @@ const Createuser = () => {
                 </label>
                 <input
                   name="name"
+                  disabled={loading}
                   required
                   className="mt-1 w-full border border-orange-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
                   placeholder="Enter full name"
@@ -97,6 +162,7 @@ const Createuser = () => {
                 <input
                   name="email"
                   type="email"
+                  disabled={loading}
                   required
                   className="mt-1 w-full border border-orange-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
                   placeholder="Enter email address"
@@ -113,6 +179,7 @@ const Createuser = () => {
                     <button
                       key={r}
                       type="button"
+                      disabled={loading}
                       onClick={() => setRole(r)}
                       className={`px-4 py-2 rounded-lg border transition ${
                         role === r
@@ -134,6 +201,7 @@ const Createuser = () => {
                   </label>
                   <input
                     name="department"
+                    disabled={loading}
                     required
                     className="mt-1 w-full border border-orange-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
                     placeholder="e.g. BCA, BSc CS"
@@ -150,6 +218,7 @@ const Createuser = () => {
                   <input
                     type="number"
                     name="semester"
+                    disabled={loading}
                     min="1"
                     max="8"
                     required
@@ -167,12 +236,66 @@ const Createuser = () => {
                   </label>
                   <input
                     type="number"
+                    disabled={loading}
                     name="year"
                     min="1"
                     required
                     className="mt-1 w-full border border-orange-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
                     placeholder="Enter year"
                   />
+                </div>
+              )}
+
+              {/* Student Image (only for student) */}
+              {role === "student" && (
+                <div>
+                  <label className="block text-sm font-semibold text-orange-600">
+                    Student Image
+                  </label>
+                  <input
+                    type="file"
+                    name="avatar"
+                    disabled={loading}
+                    accept="image/*"
+                    required
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        if (file.size > 90 * 1024) {
+                          toast.error("Image size must be under 90KB");
+                          e.target.value = "";
+                          setPreview(null);
+                          return;
+                        }
+                        const reader = new FileReader();
+                        reader.onload = (ev) => setPreview(ev.target.result);
+                        reader.readAsDataURL(file);
+                        setSelectedFile(file);
+                      }
+                    }}
+                    className="mt-1 w-full border border-orange-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  />
+
+                  {/* Image Preview */}
+                  {preview && (
+                    <div className="relative mt-3 w-32 h-32">
+                      <img
+                        src={preview}
+                        alt="Preview"
+                        className="w-32 h-32 rounded-lg object-cover border border-orange-300"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPreview(null);
+                          setSelectedFile(null);
+                        }}
+                        className="absolute top-1 right-1 bg-red-500 text-white text-xs px-2 py-1 rounded-full hover:bg-red-600"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -254,12 +377,19 @@ const Createuser = () => {
                 </div>
               )}
 
-              {/* Submit */}
+              {/* Creating user eg: Admin , Teacher , Student */}
               <button
-                type="submit"
-                className="w-full bg-orange-500 hover:bg-orange-600 text-white text-lg font-semibold py-2 rounded-xl shadow-md"
+                className="bg-orange-500 font-semibold text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition w-full flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={loading}
               >
-                Create User
+                {loading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Creating {role}...
+                  </>
+                ) : (
+                  `Create ${role}`
+                )}
               </button>
             </form>
           </div>

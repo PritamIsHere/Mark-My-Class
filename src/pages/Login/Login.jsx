@@ -120,6 +120,7 @@ export default function LoginPage() {
                       : "border-gray-300 focus:ring-orange-400"
                   }`}
                   placeholder="Enter your email"
+                  disabled={loading}
                 />
                 {errors.email && (
                   <p className="text-red-500 text-sm mt-1">
@@ -147,12 +148,14 @@ export default function LoginPage() {
                         : "border-gray-300 focus:ring-orange-400"
                     }`}
                     placeholder="Enter your password"
+                    disabled={loading}
                   />
 
                   {/* Toggle button */}
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
+                    disabled={loading}
                     className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
                   >
                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -166,13 +169,19 @@ export default function LoginPage() {
                 )}
               </div>
 
-              {/* Submit Button */}
+              {/* Login Button */}
               <button
-                type="submit"
+                className="bg-orange-500 font-semibold text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition w-full flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={loading}
-                className="w-full bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white font-semibold rounded-xl py-3 text-lg shadow-md transition transform hover:scale-[1.02]"
               >
-                {loading ? "Logging in..." : "Login"}
+                {loading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Logging in...
+                  </>
+                ) : (
+                  "Login"
+                )}
               </button>
             </form>
 
