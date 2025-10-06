@@ -106,9 +106,9 @@ const Admin = () => {
         </header>
 
         {/* Dashboard Content */}
-        <main className="p-4 sm:p-6 overflow-y-auto bg-gray-50">
+        <main className="p-4 sm:p-6 overflow-y-auto bg-gray-50 h-full">
           {/* Metrics Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 ">
             <div className="bg-white p-4 sm:p-6 rounded-xl shadow hover:shadow-lg border-t-4 border-orange-500 transition">
               <h2 className="text-gray-500">Total Students</h2>
               <p className="text-2xl sm:text-3xl font-bold text-orange-600">
@@ -146,12 +146,12 @@ const Admin = () => {
           </div>
 
           {/* Attendance Chart */}
-          <div className="bg-white rounded-xl shadow p-4 sm:p-6">
+          <div className="bg-white rounded-xl shadow p-4 sm:p-6 sm:mb-2 h-2/3 ">
             <h3 className="text-base sm:text-lg font-semibold mb-4 text-orange-600">
               Attendance Trend (Monthly)
             </h3>
             <div className="w-full h-64 sm:h-80">
-              <MyChart />
+              <MyChart/>
             </div>
           </div>
         </main>
