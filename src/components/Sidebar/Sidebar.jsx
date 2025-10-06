@@ -22,10 +22,10 @@ const Sidebar = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    logout();
     toast.success("Logout successfully");
+    logout();
     navigate("/login");
-    // window.location.reload();
+    window.location.reload();
   };
 
   const baseClass = "flex items-center gap-3 p-3 rounded-lg transition";
