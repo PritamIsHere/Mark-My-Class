@@ -36,10 +36,16 @@ export default function LoginPage() {
       } else {
         await login(response?.data?.token);
         toast.success("Login Successful");
-        window.location.assign("/");
+        window.location.replace("/");
       }
     } catch (err) {
-      toast.error("Login failed, please try again.");
+      if (err.response?.status === 400) {
+        toast.error("Incorrect email or password. Please try again.");
+      } else if (err.response?.status === 403) {
+        toast.error("Your account is not authorized. Contact admin.");
+      } else {
+        toast.error("Login failed, please try again later.");
+      }
     } finally {
       setLoading(false);
     }
