@@ -1,13 +1,44 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Bell, Search, User } from "lucide-react";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import { useAuth } from "../../Context/AuthContext";
 import MyChart from "../../components/Chart/Chart";
 import TeacherLinechart from "../../components/Chart/TeacherLinechart";
 
+// Simple animated counter for mounting transitions
+const CountUpNumber = ({ end = 0, duration = 1200 }) => {
+  const [value, setValue] = useState(0);
+  const startTimeRef = useRef(null);
+
+  useEffect(() => {
+    let animationFrameId;
+    startTimeRef.current = null;
+
+    const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+
+    const animate = (timestamp) => {
+      if (startTimeRef.current === null) startTimeRef.current = timestamp;
+      const elapsed = timestamp - startTimeRef.current;
+      const progress = Math.min(1, elapsed / duration);
+      const eased = easeOutCubic(progress);
+      const current = Math.round(eased * end);
+      setValue(current);
+      if (progress < 1) {
+        animationFrameId = requestAnimationFrame(animate);
+      }
+    };
+
+    animationFrameId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [end, duration]);
+
+  return <>{value}</>;
+};
+
 const Teacher = () => {
   const { CurrentUser } = useAuth();
   const [open, setOpen] = useState(false);
+  const myClassesTarget = CurrentUser?.existuser?.subjects?.length ?? 0;
 
   return (
     <div className="flex h-screen bg-white">
@@ -109,14 +140,14 @@ const Teacher = () => {
         </header>
 
         {/* Dashboard Content */}
-        <main className="p-4 sm:p-6 overflow-y-auto bg-gray-50">
+        <main className="p-4 sm:p-6 overflow-y-auto h-screen bg-gray-50">
           {/* Metrics Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6">
             {/* Assigned Classes */}
             <div className="bg-white p-4 sm:p-6 rounded-xl shadow hover:shadow-lg border-t-4 border-orange-500 transition">
               <h2 className="text-gray-500">My Classes</h2>
               <p className="text-2xl sm:text-3xl font-bold text-orange-600">
-                {CurrentUser?.existuser?.subjects.length}
+                <CountUpNumber end={myClassesTarget} />
               </p>
               <p className="text-sm text-gray-400 mt-1">
                 Classes you are handling
@@ -127,7 +158,7 @@ const Teacher = () => {
             <div className="bg-white p-4 sm:p-6 rounded-xl shadow hover:shadow-lg border-t-4 border-blue-500 transition">
               <h2 className="text-gray-500">My Students</h2>
               <p className="text-2xl sm:text-3xl font-bold text-blue-600">
-                320
+                <CountUpNumber end={320} />
               </p>
               <p className="text-sm text-gray-400 mt-1">
                 Students enrolled under you
@@ -138,7 +169,7 @@ const Teacher = () => {
             <div className="bg-white p-4 sm:p-6 rounded-xl shadow hover:shadow-lg border-t-4 border-green-500 transition">
               <h2 className="text-gray-500">Attendance Today</h2>
               <p className="text-2xl sm:text-3xl font-bold text-green-600">
-                6 / 8
+                <CountUpNumber end={6} /> / <CountUpNumber end={8} />
               </p>
               <p className="text-sm text-gray-400 mt-1">
                 Classes where attendance taken
@@ -148,7 +179,9 @@ const Teacher = () => {
             {/* Pending Evaluations */}
             <div className="bg-white p-4 sm:p-6 rounded-xl shadow hover:shadow-lg border-t-4 border-red-500 transition">
               <h2 className="text-gray-500">Pending Evaluations</h2>
-              <p className="text-2xl sm:text-3xl font-bold text-red-600">15</p>
+              <p className="text-2xl sm:text-3xl font-bold text-red-600">
+                <CountUpNumber end={15} />
+              </p>
               <p className="text-sm text-gray-400 mt-1">
                 Assignments/tests to grade
               </p>
@@ -156,9 +189,9 @@ const Teacher = () => {
           </div>
 
           {/* Attendance Chart */}
-          <div className="bg-white rounded-xl shadow p-4 sm:p-6">
+          <div className="bg-white h-2/3 rounded-xl shadow p-4 sm:p-6">
             <h3 className="text-base sm:text-lg font-semibold mb-4 text-orange-600">
-              Attendance Trend (June 2025)
+              Attendance Trend 
             </h3>
             <div className="w-full h-64 sm:h-80">
               <TeacherLinechart />
