@@ -62,19 +62,14 @@ const Sidebar = () => {
         icon: <QrCode size={20} />,
       },
       {
-        to: "/teacher/mark-attendance",
-        label: "Mark",
-        icon: <Highlighter size={20} />,
-      },
-      // {
-      //   to: "/teacher/delete-qr-session",
-      //   label: "Delete",
-      //   icon: <QrCode size={20} />,
-      // },
-      {
         to: "/teacher/attendance",
         label: "Attend",
         icon: <ClipboardList size={20} />,
+      },
+      {
+        to: "/teacher/mark-attendance",
+        label: "Mark",
+        icon: <Highlighter size={20} />,
       },
     ],
     student: [
@@ -83,11 +78,6 @@ const Sidebar = () => {
         label: "Scan",
         icon: <QrCode size={20} />,
       },
-      // {
-      //   to: "/student/attendance",
-      //   label: "Attend",
-      //   icon: <ClipboardList size={20} />,
-      // },
       {
         to: "/student/leaderboard",
         label: "Rank",
@@ -176,15 +166,6 @@ const Sidebar = () => {
                 <NavLink to="/teacher/create-qr-code" className={getLinkClass}>
                   <QrCode size={18} /> Create QR Code
                 </NavLink>
-                {/* <NavLink to="/teacher/end-qr-session" className={getLinkClass}>
-                  <QrCode size={18} /> End QR Session
-                </NavLink>
-                <NavLink
-                  to="/teacher/delete-qr-session"
-                  className={getLinkClass}
-                >
-                  <QrCode size={18} /> Delete QR Session
-                </NavLink> */}
                 <NavLink to="/teacher/attendance" className={getLinkClass}>
                   <ClipboardList size={18} /> Attendance
                 </NavLink>
@@ -200,9 +181,6 @@ const Sidebar = () => {
                 <NavLink to="/student/scan-qr-code" className={getLinkClass}>
                   <QrCode size={18} /> Scan QR Code
                 </NavLink>
-                {/* <NavLink to="/student/attendance" className={getLinkClass}>
-                  <ClipboardList size={18} /> Attendance
-                </NavLink> */}
                 <NavLink to="/student/leaderboard" className={getLinkClass}>
                   <BarChart2 size={18} /> Leaderboard
                 </NavLink>
