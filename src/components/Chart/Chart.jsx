@@ -10,23 +10,117 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const bcaData = [
-  { month: "Jan", students: 120 },
-  { month: "Feb", students: 80 },
-  { month: "Mar", students: 180 },
-  { month: "Apr", students: 150 },
-  { month: "May", students: 122 },
-  { month: "Jun", students: 200 },
-];
-
-const bbaData = [
-  { month: "Jan", students: 140 },
-  { month: "Feb", students: 70 },
-  { month: "Mar", students: 94 },
-  { month: "Apr", students: 193 },
-  { month: "May", students: 150 },
-  { month: "Jun", students: 150 },
-];
+// Raw per-semester data for BCA and BBA
+const semesterData = {
+  "Sem 1": {
+    bca: [
+      { month: "Jan", students: 120 },
+      { month: "Feb", students: 60 },
+      { month: "Mar", students: 180 },
+      { month: "Apr", students: 90 },
+      { month: "May", students: 122 },
+      { month: "Jun", students: 200 },
+    ],
+    bba: [
+      { month: "Jan", students: 80 },
+      { month: "Feb", students: 130 },
+      { month: "Mar", students: 60 },
+      { month: "Apr", students: 170 },
+      { month: "May", students: 190 },
+      { month: "Jun", students: 110 },
+    ],
+  },
+  "Sem 2": {
+    bca: [
+      { month: "Jan", students: 100 },
+      { month: "Feb", students: 150 },
+      { month: "Mar", students: 90 },
+      { month: "Apr", students: 140 },
+      { month: "May", students: 80 },
+      { month: "Jun", students: 185 },
+    ],
+    bba: [
+      { month: "Jan", students: 180 },
+      { month: "Feb", students: 60 },
+      { month: "Mar", students: 130 },
+      { month: "Apr", students: 120 },
+      { month: "May", students: 170 },
+      { month: "Jun", students: 100 },
+    ],
+  },
+  "Sem 3": {
+    bca: [
+      { month: "Jan", students: 60 },
+      { month: "Feb", students: 170 },
+      { month: "Mar", students: 110 },
+      { month: "Apr", students: 195 },
+      { month: "May", students: 70 },
+      { month: "Jun", students: 180 },
+    ],
+    bba: [
+      { month: "Jan", students: 190 },
+      { month: "Feb", students: 80 },
+      { month: "Mar", students: 170 },
+      { month: "Apr", students: 100 },
+      { month: "May", students: 120 },
+      { month: "Jun", students: 60 },
+    ],
+  },
+  "Sem 4": {
+    bca: [
+      { month: "Jan", students: 200 },
+      { month: "Feb", students: 100 },
+      { month: "Mar", students: 60 },
+      { month: "Apr", students: 180 },
+      { month: "May", students: 130 },
+      { month: "Jun", students: 90 },
+    ],
+    bba: [
+      { month: "Jan", students: 70 },
+      { month: "Feb", students: 190 },
+      { month: "Mar", students: 120 },
+      { month: "Apr", students: 60 },
+      { month: "May", students: 180 },
+      { month: "Jun", students: 170 },
+    ],
+  },
+  "Sem 5": {
+    bca: [
+      { month: "Jan", students: 80 },
+      { month: "Feb", students: 200 },
+      { month: "Mar", students: 70 },
+      { month: "Apr", students: 120 },
+      { month: "May", students: 190 },
+      { month: "Jun", students: 100 },
+    ],
+    bba: [
+      { month: "Jan", students: 200 },
+      { month: "Feb", students: 60 },
+      { month: "Mar", students: 180 },
+      { month: "Apr", students: 90 },
+      { month: "May", students: 110 },
+      { month: "Jun", students: 170 },
+    ],
+  },
+  "Sem 6": {
+    bca: [
+      { month: "Jan", students: 110 },
+      { month: "Feb", students: 80 },
+      { month: "Mar", students: 200 },
+      { month: "Apr", students: 60 },
+      { month: "May", students: 170 },
+      { month: "Jun", students: 130 },
+    ],
+    bba: [
+      { month: "Jan", students: 60 },
+      { month: "Feb", students: 200 },
+      { month: "Mar", students: 90 },
+      { month: "Apr", students: 180 },
+      { month: "May", students: 100 },
+      { month: "Jun", students: 190 },
+    ],
+  },
+};
 
 const MyChart = () => {
   const [showBCA, setShowBCA] = useState(true);
@@ -35,16 +129,17 @@ const MyChart = () => {
 
   // Build a combined dataset by month so we can compare selected programs side-by-side
   const combinedData = useMemo(() => {
+    const dataForSemester = semesterData[semester] || { bca: [], bba: [] };
     const byMonth = new Map();
-    for (const item of bcaData) {
+    for (const item of dataForSemester.bca) {
       byMonth.set(item.month, { month: item.month, bcaStudents: item.students });
     }
-    for (const item of bbaData) {
+    for (const item of dataForSemester.bba) {
       const existing = byMonth.get(item.month) || { month: item.month };
       byMonth.set(item.month, { ...existing, bbaStudents: item.students });
     }
     return Array.from(byMonth.values());
-  }, []);
+  }, [semester]);
 
   return (
     <div className="w-full h-full">
@@ -53,7 +148,7 @@ const MyChart = () => {
         <select
           value={semester}
           onChange={(e) => setSemester(e.target.value)}
-          className="px-3 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200"
+          className="px-3 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 outline-0"
         >
           <option value="Sem 1">Sem 1</option>
           <option value="Sem 2">Sem 2</option>
