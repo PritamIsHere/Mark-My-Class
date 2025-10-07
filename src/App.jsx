@@ -27,6 +27,7 @@ import CreateQr from "./components/Teachercomponents/CreateQrCode/CreateQr";
 import DeleteQr from "./components/Teachercomponents/DeleteQrSession/DeleteQr";
 import EndQrSession from "./components/Teachercomponents/EndQrSession/EndQrSession";
 import TeacherAttendence from "./components/Teachercomponents/TeachersAttendance/TeacherAttendence";
+import MarkAttendance from "./components/Teachercomponents/MarkAttendance/MarkAttendance";
 
 // Student Components Area
 
@@ -139,6 +140,17 @@ const App = () => {
                 <PrivateRoute>
                   <TeacherRoute>
                     <TeacherAttendence />
+                  </TeacherRoute>
+                </PrivateRoute>
+              }
+            />
+
+            <Route
+              path="/teacher/mark-attendance"
+              element={
+                <PrivateRoute>
+                  <TeacherRoute>
+                    <MarkAttendance />
                   </TeacherRoute>
                 </PrivateRoute>
               }

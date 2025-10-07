@@ -9,6 +9,7 @@ import {
   QrCode,
   LogOut,
   BookText,
+  Highlighter,
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 
@@ -60,11 +61,11 @@ const Sidebar = () => {
         label: "Create",
         icon: <QrCode size={20} />,
       },
-      // {
-      //   to: "/teacher/end-qr-session",
-      //   label: "End QR",
-      //   icon: <QrCode size={20} />,
-      // },
+      {
+        to: "/teacher/mark-attendance",
+        label: "Mark",
+        icon: <Highlighter size={20} />,
+      },
       // {
       //   to: "/teacher/delete-qr-session",
       //   label: "Delete",
@@ -186,6 +187,10 @@ const Sidebar = () => {
                 </NavLink> */}
                 <NavLink to="/teacher/attendance" className={getLinkClass}>
                   <ClipboardList size={18} /> Attendance
+                </NavLink>
+
+                <NavLink to="/teacher/mark-attendance" className={getLinkClass}>
+                  <Highlighter size={18} /> Mark
                 </NavLink>
               </>
             )}
