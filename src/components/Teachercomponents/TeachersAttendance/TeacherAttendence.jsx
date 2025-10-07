@@ -239,7 +239,7 @@ const TeacherAttendance = () => {
         </h1>
 
         {loading ? (
-          <SkeletonTheme baseColor="#ddd" highlightColor="#eee">
+          <SkeletonTheme baseColor="#fed7aa" highlightColor="#ffedd5">
             <div className="overflow-x-auto">
               {/* Skeleton Table for Desktop */}
               <table className="hidden md:table min-w-full bg-white shadow-lg rounded-lg overflow-hidden">

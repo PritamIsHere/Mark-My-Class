@@ -119,7 +119,7 @@ const Student = () => {
           </h4>
           <div className="overflow-y-auto max-h-72 sm:max-h-80">
             {loading ? (
-              <SkeletonTheme baseColor="#ddd" highlightColor="#eee">
+              <SkeletonTheme baseColor="#fed7aa" highlightColor="#ffedd5">
                 <table className="min-w-full text-sm bg-white border border-gray-200 rounded">
                   <thead>
                     <tr>
@@ -313,7 +313,8 @@ const Student = () => {
             Attendance Summary
           </h3>
           {apiLoading ? (
-            <SkeletonTheme baseColor="#ddd" highlightColor="#eee">
+            // <SkeletonTheme baseColor="#ddd" highlightColor="#eee">
+            <SkeletonTheme baseColor="#fed7aa" highlightColor="#ffedd5">
               <div className="w-full overflow-x-auto px-1">
                 <div className="min-w-full rounded-xl border border-gray-200 shadow-sm">
                   <table className="w-full text-xs sm:text-sm bg-white">
