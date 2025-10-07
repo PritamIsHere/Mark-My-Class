@@ -4,6 +4,7 @@ import LoadingScreen from "../../components/Apploading/Loading";
 import React, { useState, useEffect } from "react";
 import axiosInstance from "../../api/axiosInstance";
 import { Search, User, Bell } from "lucide-react";
+import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 
 const Student = () => {
   const { userRole, fullLoading, authToken, CurrentUser } = useAuth();
@@ -83,7 +84,7 @@ const Student = () => {
     if (selectedSubject) fetchSubjectDetails();
   }, [selectedSubject, authToken, CurrentUser]);
 
-  if (fullLoading || apiLoading) return <LoadingScreen />;
+  if (fullLoading) return <LoadingScreen />;
 
   const SubjectModal = ({ subject, onClose, details, loading, error }) => {
     if (!subject) return null;
@@ -118,9 +119,33 @@ const Student = () => {
           </h4>
           <div className="overflow-y-auto max-h-72 sm:max-h-80">
             {loading ? (
-              <div className="text-center py-6 text-orange-600 font-semibold">
-                Loading...
-              </div>
+              <SkeletonTheme baseColor="#ddd" highlightColor="#eee">
+                <table className="min-w-full text-sm bg-white border border-gray-200 rounded">
+                  <thead>
+                    <tr>
+                      {["Date", "Status"].map((header) => (
+                        <th
+                          key={header}
+                          className="px-3 sm:px-4 py-2 text-left font-bold text-orange-600 uppercase border-b border-gray-300"
+                        >
+                          {header}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[...Array(3)].map((_, rowIndex) => (
+                      <tr key={rowIndex} className="border-b border-gray-200">
+                        {[...Array(2)].map((_, colIndex) => (
+                          <td key={colIndex} className="px-3 sm:px-4 py-2">
+                            <Skeleton width="80%" height={14} />
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </SkeletonTheme>
             ) : error ? (
               <div className="text-center py-6 text-red-600 font-semibold">
                 {error}
@@ -287,7 +312,53 @@ const Student = () => {
           <h3 className="text-base sm:text-lg font-semibold mb-4 text-orange-600">
             Attendance Summary
           </h3>
-          {apiError ? (
+          {apiLoading ? (
+            <SkeletonTheme baseColor="#ddd" highlightColor="#eee">
+              <div className="w-full overflow-x-auto px-1">
+                <div className="min-w-full rounded-xl border border-gray-200 shadow-sm">
+                  <table className="w-full text-xs sm:text-sm bg-white">
+                    <thead>
+                      <tr>
+                        {["Subject", "Total", "Presents", "Attendance"].map(
+                          (header) => (
+                            <th
+                              key={header}
+                              className="px-2 sm:px-6 py-3 bg-orange-50 text-left font-bold text-orange-600 uppercase whitespace-nowrap"
+                            >
+                              {header}
+                            </th>
+                          )
+                        )}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[...Array(4)].map((_, i) => (
+                        <tr
+                          key={i}
+                          className={`${
+                            i % 2 === 0 ? "bg-gray-50" : "bg-white"
+                          } border-b border-gray-100`}
+                        >
+                          <td className="px-2 sm:px-6 py-3 whitespace-nowrap">
+                            <Skeleton width={100} height={16} />
+                          </td>
+                          <td className="px-2 sm:px-6 py-3 whitespace-nowrap">
+                            <Skeleton width={50} height={16} />
+                          </td>
+                          <td className="px-2 sm:px-6 py-3 whitespace-nowrap">
+                            <Skeleton width={50} height={16} />
+                          </td>
+                          <td className="px-2 sm:px-6 py-3 whitespace-nowrap">
+                            <Skeleton width={70} height={18} />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </SkeletonTheme>
+          ) : apiError ? (
             <div className="text-red-600 text-center py-4">{apiError}</div>
           ) : (
             <div className="overflow-x-auto">
@@ -295,18 +366,16 @@ const Student = () => {
                 <table className="min-w-full text-xs sm:text-sm bg-white">
                   <thead>
                     <tr>
-                      <th className="px-3 sm:px-6 py-3 bg-orange-50 text-left font-bold text-orange-600 uppercase">
-                        Subject
-                      </th>
-                      <th className="px-3 sm:px-6 py-3 bg-orange-50 text-left font-bold text-orange-600 uppercase">
-                        Total
-                      </th>
-                      <th className="px-3 sm:px-6 py-3 bg-orange-50 text-left font-bold text-orange-600 uppercase">
-                        Presents
-                      </th>
-                      <th className="px-3 sm:px-6 py-3 bg-orange-50 text-left font-bold text-orange-600 uppercase">
-                        Attendance
-                      </th>
+                      {["Subject", "Total", "Presents", "Attendance"].map(
+                        (header) => (
+                          <th
+                            key={header}
+                            className="px-3 sm:px-6 py-3 bg-orange-50 text-left font-bold text-orange-600 uppercase"
+                          >
+                            {header}
+                          </th>
+                        )
+                      )}
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
