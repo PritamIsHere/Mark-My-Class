@@ -36,8 +36,7 @@ export default function LoginPage() {
       } else {
         await login(response?.data?.token);
         toast.success("Login Successful");
-        navigate("/");
-        window.location.reload();
+        window.location.assign("/");
       }
     } catch (err) {
       toast.error("Login failed, please try again.");

@@ -129,10 +129,10 @@ const Student = () => {
               <table className="min-w-full text-sm bg-white border border-gray-200 rounded">
                 <thead>
                   <tr>
-                    <th className="px-3 sm:px-4 py-2 text-left font-bold text-orange-600 uppercase border-b">
+                    <th className="px-3 sm:px-4 py-2 text-left font-bold text-orange-600 uppercase border-b border-gray-300">
                       Date
                     </th>
-                    <th className="px-3 sm:px-4 py-2 text-left font-bold text-orange-600 uppercase border-b">
+                    <th className="px-3 sm:px-4 py-2 text-left font-bold text-orange-600 uppercase border-b border-gray-300">
                       Status
                     </th>
                   </tr>
@@ -144,10 +144,10 @@ const Student = () => {
                         key={entry.date + idx}
                         className={idx % 2 === 0 ? "bg-gray-50" : "bg-white"}
                       >
-                        <td className="px-3 sm:px-4 py-2 border-b text-gray-900">
+                        <td className="px-3 sm:px-4 py-2 border-b border-gray-300 text-gray-900">
                           {getOnlyDate(entry.date)}
                         </td>
-                        <td className="px-3 sm:px-4 py-2 border-b">
+                        <td className="px-3 sm:px-4 py-2 border-b border-gray-300">
                           <span
                             className={`inline-block px-2 py-1 rounded-full text-xs font-bold ${getStatusColor(
                               entry.status
