@@ -1,14 +1,18 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../Context/AuthContext";
+import Cookies from "js-cookie";
+
 // Protected Route Component
 export const PrivateRoute = ({ children }) => {
-  const token = localStorage.getItem("token");
+  // const token = localStorage.getItem("token");
+  const token = Cookies.get("token");
   return token ? children : <Navigate to="/home" />;
 };
 
 // Public Route Restriction (e.g., /login, /register)
 export const PublicRoute = ({ children }) => {
-  const token = localStorage.getItem("token");
+  // const token = localStorage.getItem("token");
+  const token = Cookies.get("token");
   return token ? <Navigate to="/" /> : children;
 };
 

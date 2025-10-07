@@ -1,13 +1,15 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import axiosInstance from "../api/axiosInstance";
 import { extractBearerToken } from "../auth/Auth";
+import Cookies from "js-cookie";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [fullLoading, setFullloading] = useState(true);
-  const authToken = localStorage.getItem("token");
+  // const authToken = localStorage.getItem("token");
+  const authToken = Cookies.get("token");
   const [CurrentUser, setCurrentUser] = useState(null);
   const [error, setError] = useState("");
   const [userRole, setUserRole] = useState(null);
@@ -24,8 +26,6 @@ export const AuthProvider = ({ children }) => {
       });
       setCurrentUser(res?.data);
       setUserRole(res?.data?.existuser?.role);
-      // Store userId in localStorage for later use
-      // localStorage.setItem("userId", res?.data?.existuser?._id || "");
       setIsLoggedIn(true);
     } catch (error) {
       localStorage.removeItem("token");
@@ -43,14 +43,20 @@ export const AuthProvider = ({ children }) => {
 
   // login handler
   const login = async (token) => {
-    localStorage.setItem("token", extractBearerToken(token));
+    // localStorage.setItem("token", extractBearerToken(token));
+    Cookies.set("token", extractBearerToken(token), {
+      expires: 7, // expires in 7 days
+      secure: true, // only sent over HTTPS
+      sameSite: "strict", // prevents CSRF
+    });
     await fetchUser();
   };
 
   // logout handler
   const logout = async () => {
     setCurrentUser(null);
-    localStorage.removeItem("token");
+    // localStorage.removeItem("token");
+    Cookies.remove("token");
     setIsLoggedIn(false);
   };
   return (
