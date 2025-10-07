@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Bell, Search, User } from "lucide-react";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import { useAuth } from "../../Context/AuthContext";
@@ -106,44 +106,103 @@ const Admin = () => {
         </header>
 
         {/* Dashboard Content */}
-        <main className="p-4 sm:p-6 overflow-y-auto bg-gray-50 h-full">
-          {/* Metrics Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 ">
-            <div className="bg-white p-4 sm:p-6 rounded-xl shadow hover:shadow-lg border-t-4 border-orange-500 transition">
-              <h2 className="text-gray-500">Total Students</h2>
-              <p className="text-2xl sm:text-3xl font-bold text-orange-600">
-                1,245
-              </p>
-              <p className="text-sm text-gray-400 mt-1">
-                Active students enrolled
-              </p>
-            </div>
-            <div className="bg-white p-4 sm:p-6 rounded-xl shadow hover:shadow-lg border-t-4 border-orange-500 transition">
-              <h2 className="text-gray-500">Total Classes</h2>
-              <p className="text-2xl sm:text-3xl font-bold text-orange-600">
-                35
-              </p>
-              <p className="text-sm text-gray-400 mt-1">
-                Classes this semester
-              </p>
-            </div>
-            <div className="bg-white p-4 sm:p-6 rounded-xl shadow hover:shadow-lg border-t-4 border-green-500 transition">
-              <h2 className="text-gray-500">Today's Attendance</h2>
-              <p className="text-2xl sm:text-3xl font-bold text-green-600">
-                92%
-              </p>
-              <p className="text-sm text-gray-400 mt-1">
-                Percentage of students present
-              </p>
-            </div>
-            <div className="bg-white p-4 sm:p-6 rounded-xl shadow hover:shadow-lg border-t-4 border-red-500 transition">
-              <h2 className="text-gray-500">Pending Approvals</h2>
-              <p className="text-2xl sm:text-3xl font-bold text-red-600">12</p>
-              <p className="text-sm text-gray-400 mt-1">
-                Leaves awaiting approval
-              </p>
-            </div>
-          </div>
+        <main className="p-4 sm:p-6 overflow-y-auto bg-[#FFF6EA] h-full">
+          {/*
+            Animated metrics cards: numbers count up from 0 to their target values on mount
+          */}
+          {(() => {
+            // Target values
+            const totalStudents = 1245;
+            const totalClasses = 35;
+            const todaysAttendance = 92; // percent
+            const pendingApprovals = 12;
+
+            // Animated values
+            const [studentsCount, setStudentsCount] = useState(0);
+            const [classesCount, setClassesCount] = useState(0);
+            const [attendanceCount, setAttendanceCount] = useState(0);
+            const [approvalsCount, setApprovalsCount] = useState(0);
+
+            useEffect(() => {
+              let students = 0, classes = 0, attendance = 0, approvals = 0;
+              const duration = 1000; // ms
+              const steps = 40;
+              const interval = duration / steps;
+
+              const studentsStep = totalStudents / steps;
+              const classesStep = totalClasses / steps;
+              const attendanceStep = todaysAttendance / steps;
+              const approvalsStep = pendingApprovals / steps;
+
+              let currentStep = 0;
+              const timer = setInterval(() => {
+                currentStep++;
+                students = Math.min(Math.round(students + studentsStep), totalStudents);
+                classes = Math.min(Math.round(classes + classesStep), totalClasses);
+                attendance = Math.min(Math.round(attendance + attendanceStep), todaysAttendance);
+                approvals = Math.min(Math.round(approvals + approvalsStep), pendingApprovals);
+
+                setStudentsCount(students);
+                setClassesCount(classes);
+                setAttendanceCount(attendance);
+                setApprovalsCount(approvals);
+
+                if (currentStep >= steps) {
+                  setStudentsCount(totalStudents);
+                  setClassesCount(totalClasses);
+                  setAttendanceCount(todaysAttendance);
+                  setApprovalsCount(pendingApprovals);
+                  clearInterval(timer);
+                }
+              }, interval);
+
+              return () => clearInterval(timer);
+            }, []);
+
+            // Format numbers with commas
+            const formatNumber = (num) => num.toLocaleString();
+
+            return (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 ">
+                <div className="bg-white p-4 sm:p-6 rounded-xl shadow hover:shadow-lg border-t-4 border-orange-500 transition">
+                  <h2 className="text-gray-500">Total Students</h2>
+                  <p className="text-2xl sm:text-3xl font-bold text-orange-600">
+                    {formatNumber(studentsCount)}
+                  </p>
+                  <p className="text-sm text-gray-400 mt-1">
+                    Active students enrolled
+                  </p>
+                </div>
+                <div className="bg-white p-4 sm:p-6 rounded-xl shadow hover:shadow-lg border-t-4 border-orange-500 transition">
+                  <h2 className="text-gray-500">Total Classes</h2>
+                  <p className="text-2xl sm:text-3xl font-bold text-orange-600">
+                    {formatNumber(classesCount)}
+                  </p>
+                  <p className="text-sm text-gray-400 mt-1">
+                    Classes this semester
+                  </p>
+                </div>
+                <div className="bg-white p-4 sm:p-6 rounded-xl shadow hover:shadow-lg border-t-4 border-green-500 transition">
+                  <h2 className="text-gray-500">Today's Attendance</h2>
+                  <p className="text-2xl sm:text-3xl font-bold text-green-600">
+                    {attendanceCount}%
+                  </p>
+                  <p className="text-sm text-gray-400 mt-1">
+                    Percentage of students present
+                  </p>
+                </div>
+                <div className="bg-white p-4 sm:p-6 rounded-xl shadow hover:shadow-lg border-t-4 border-red-500 transition">
+                  <h2 className="text-gray-500">Pending Approvals</h2>
+                  <p className="text-2xl sm:text-3xl font-bold text-red-600">
+                    {approvalsCount}
+                  </p>
+                  <p className="text-sm text-gray-400 mt-1">
+                    Leaves awaiting approval
+                  </p>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* Attendance Chart */}
           <div className="bg-white rounded-xl shadow p-4 sm:p-6 sm:mb-2 h-2/3 ">
