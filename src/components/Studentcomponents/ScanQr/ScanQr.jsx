@@ -881,7 +881,8 @@ const ScanQr = () => {
   };
 
   const openFrontCamera = async () => {
-    await stopCameraScan(); // stop QR scanning
+    // Stop QR scanner first
+    await stopCameraScan();
 
     setCameraOpen(true);
     setCapturedImage(null);
@@ -987,11 +988,14 @@ const ScanQr = () => {
 
     if (videoRef.current) videoRef.current.srcObject = null;
 
-    // Also stop QR scanner if still running
+    // Stop QR scanner if running (optional safety)
     stopCameraScan();
   };
 
   const startCameraScan = async () => {
+    // Stop front camera first
+    stopFrontCamera();
+
     setScanning(true);
     try {
       const cameras = await Html5Qrcode.getCameras();
