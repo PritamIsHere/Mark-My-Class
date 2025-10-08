@@ -992,6 +992,25 @@ const ScanQr = () => {
     stopCameraScan();
   };
 
+  const restartFrontCamera = async () => {
+    try {
+      // Stop any existing camera stream before restarting
+      if (videoRef.current?.srcObject) {
+        videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
+      }
+
+      // Restart the front camera stream
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "user" },
+      });
+
+      if (videoRef.current) videoRef.current.srcObject = stream;
+    } catch (err) {
+      console.error("Error restarting front camera:", err);
+      showModal("error", "Unable to restart camera: " + (err?.message || err));
+    }
+  };
+
   const startCameraScan = async () => {
     // Stop front camera first
     stopFrontCamera();
@@ -1147,7 +1166,10 @@ const ScanQr = () => {
               <div className="w-full relative flex flex-col items-center mt-4">
                 {/* Cross button to discard captured image */}
                 <button
-                  onClick={() => setCapturedImage(null)}
+                  onClick={() => {
+                    setCapturedImage(null);
+                    restartFrontCamera(); // restart live video when recapture is needed
+                  }}
                   className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-600"
                 >
                   ×
