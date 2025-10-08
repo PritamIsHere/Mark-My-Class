@@ -919,7 +919,14 @@ const ScanQr = () => {
   };
 
   const submitWithImage = async () => {
-    if (!capturedImage) return showModal("error", "Capture image first.");
+    // Prevent sending empty or invalid image
+    if (!capturedImage || !capturedImage.startsWith("data:image")) {
+      return showModal(
+        "error",
+        "Please capture a valid image before submitting."
+      );
+    }
+
     setLoading(true);
 
     let currentLocation;
@@ -938,7 +945,9 @@ const ScanQr = () => {
         lng: currentLocation.longitude,
         liveImage: capturedImage,
       };
+
       const result = await sendAttendance({ ...payload, authToken });
+
       showModal(
         "success",
         result?.message || "Attendance marked successfully!"
@@ -952,19 +961,34 @@ const ScanQr = () => {
           : data?.error ?? data?.message ?? err?.message ?? "Request failed";
       showModal("error", serverMsg);
     } finally {
-      stopFrontCamera();
+      stopFrontCamera(); // Stop camera after submission
       setLoading(false);
     }
   };
 
+  // const stopFrontCamera = () => {
+  //   setCameraOpen(false);
+  //   setCapturedImage(null);
+  //   if (videoRef.current?.srcObject) {
+  //     const tracks = videoRef.current.srcObject.getTracks();
+  //     tracks.forEach((t) => t.stop());
+  //   }
+  //   if (videoRef.current) videoRef.current.srcObject = null;
+  // };
+
   const stopFrontCamera = () => {
     setCameraOpen(false);
     setCapturedImage(null);
+
     if (videoRef.current?.srcObject) {
       const tracks = videoRef.current.srcObject.getTracks();
-      tracks.forEach((t) => t.stop());
+      tracks.forEach((track) => track.stop());
     }
+
     if (videoRef.current) videoRef.current.srcObject = null;
+
+    // Also stop QR scanner if still running
+    stopCameraScan();
   };
 
   const startCameraScan = async () => {
@@ -1082,7 +1106,13 @@ const ScanQr = () => {
       </div>
 
       {cameraOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-2">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-2"
+          onClick={(e) => {
+            // Close modal if clicked outside
+            if (e.target === e.currentTarget) stopFrontCamera();
+          }}
+        >
           <div className="relative w-full max-w-lg bg-white rounded-xl p-4 flex flex-col items-center">
             {!capturedImage ? (
               <video
@@ -1111,16 +1141,27 @@ const ScanQr = () => {
               </button>
             ) : (
               <div className="w-full relative flex flex-col items-center mt-4">
+                {/* Cross button to discard captured image */}
                 <button
                   onClick={() => setCapturedImage(null)}
                   className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-600"
                 >
                   ×
                 </button>
+
+                {/* Submit button disabled until a valid image exists */}
                 <button
                   onClick={submitWithImage}
-                  className="mt-4 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition w-full sm:w-1/2"
-                  disabled={loading}
+                  className={`mt-4 px-4 py-2 rounded-lg transition w-full sm:w-1/2 ${
+                    capturedImage && capturedImage.startsWith("data:image")
+                      ? "bg-green-500 text-white hover:bg-green-600"
+                      : "bg-gray-400 text-gray-200 cursor-not-allowed"
+                  }`}
+                  disabled={
+                    !capturedImage ||
+                    !capturedImage.startsWith("data:image") ||
+                    loading
+                  }
                 >
                   {loading ? "Submitting..." : "Submit Attendance"}
                 </button>
