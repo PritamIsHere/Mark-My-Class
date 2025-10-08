@@ -460,8 +460,12 @@ const ScanQr = () => {
 
   // Camera for live capture
   const openFrontCamera = async () => {
+    // Stop QR scanner first
+    await stopCameraScan();
+
     setCameraOpen(true);
     setCapturedImage(null);
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "user" },
@@ -476,6 +480,19 @@ const ScanQr = () => {
     }
   };
 
+
+  // const captureImage = () => {
+  //   if (!videoRef.current || !canvasRef.current) return;
+  //   const video = videoRef.current;
+  //   const canvas = canvasRef.current;
+  //   canvas.width = video.videoWidth;
+  //   canvas.height = video.videoHeight;
+  //   const ctx = canvas.getContext("2d");
+  //   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  //   const imgData = canvas.toDataURL("image/jpeg");
+  //   setCapturedImage(imgData);
+  // };
+
   const captureImage = () => {
     if (!videoRef.current || !canvasRef.current) return;
     const video = videoRef.current;
@@ -483,7 +500,13 @@ const ScanQr = () => {
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     const ctx = canvas.getContext("2d");
+
+    // Flip horizontally back for actual face
+    ctx.translate(canvas.width, 0);
+    ctx.scale(-1, 1);
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // reset transform
+
     const imgData = canvas.toDataURL("image/jpeg");
     setCapturedImage(imgData);
   };
@@ -662,44 +685,56 @@ const ScanQr = () => {
       </div>
 
       {/* Front Camera Modal */}
+      {/* Front Camera Modal */}
       {cameraOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-          <div className="relative w-full max-w-md bg-white rounded-xl p-4 flex flex-col items-center">
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              className="w-full rounded-lg mb-4"
-            />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-2">
+          <div className="relative w-full max-w-lg bg-white rounded-xl p-4 flex flex-col items-center">
+            {/* Video stream */}
+            {!capturedImage && (
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                className="w-full h-auto rounded-lg object-cover"
+                style={{ maxHeight: "70vh", transform: "scaleX(-1)" }} // mirror for user
+              />
+            )}
+
+            {/* Hidden canvas */}
             <canvas ref={canvasRef} className="hidden" />
+
             {!capturedImage ? (
+              // Capture button
               <button
                 onClick={captureImage}
-                className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition w-full"
+                className="mt-4 bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition w-full sm:w-1/2"
               >
                 Capture Image
               </button>
             ) : (
-              <>
+              <div className="w-full relative flex flex-col items-center">
+                {/* Captured Image */}
                 <img
                   src={capturedImage}
                   alt="Captured"
-                  className="w-full rounded-lg mb-4"
+                  className="w-full rounded-lg object-cover max-h-[70vh]"
                 />
+                {/* Cross button to discard */}
+                <button
+                  onClick={() => setCapturedImage(null)}
+                  className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-600"
+                >
+                  ×
+                </button>
+                {/* Submit button */}
                 <button
                   onClick={submitWithImage}
-                  className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition w-full"
+                  className="mt-4 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition w-full sm:w-1/2"
                   disabled={loading}
                 >
                   {loading ? "Submitting..." : "Submit Attendance"}
                 </button>
-                <button
-                  onClick={openFrontCamera}
-                  className="mt-2 bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition w-full"
-                >
-                  Retake
-                </button>
-              </>
+              </div>
             )}
           </div>
         </div>
