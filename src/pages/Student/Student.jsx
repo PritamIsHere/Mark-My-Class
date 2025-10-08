@@ -7,7 +7,7 @@ import { Search, User, Bell } from "lucide-react";
 import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 import * as am4core from "@amcharts/amcharts4/core";
 import * as am4charts from "@amcharts/amcharts4/charts";
-import am4themes_material from "@amcharts/amcharts4/themes/material";
+import am4themes_dataviz from "@amcharts/amcharts4/themes/dataviz";
 
 const Student = () => {
   const { userRole, fullLoading, authToken, CurrentUser } = useAuth();
@@ -223,97 +223,113 @@ const Student = () => {
   const chartRef = useRef(null); // amCharts instance
   const chartDivRef = useRef(null); // DOM node to mount chart
 
-  // Create chart once
   useEffect(() => {
     if (!chartDivRef.current) return;
 
-    am4core.useTheme(am4themes_material);
     const chart = am4core.create(chartDivRef.current, am4charts.PieChart3D);
 
     chart.hiddenState.properties.opacity = 0;
     chart.responsive.enabled = true;
 
-    // Base styling (like the demo)
-    chart.innerRadius = am4core.percent(40);
-    chart.depth = 80;
-    chart.angle = 25;
+    // 3D perspective (no hole)
+    // IMPORTANT: do NOT set chart.innerRadius, or set it explicitly to 0
+    chart.innerRadius = am4core.percent(0);
+    chart.depth = 70;
+    chart.angle = 22;
 
-    // Title
+    // Title (optional)
     const title = chart.titles.create();
     title.text = "Attendance Distribution";
-    title.fontSize = 20;
-    title.fontWeight = "bold";
-    title.marginBottom = 12;
-    title.fill = am4core.color("#f97316");
+    title.fontSize = 18;
+    title.fontWeight = "700";
+    title.marginBottom = 10;
 
     // Series
     const series = chart.series.push(new am4charts.PieSeries3D());
     series.dataFields.value = "value";
     series.dataFields.category = "category";
 
-    // Colors
+    // Colors (keep intuitive Present/Absent mapping)
     series.colors.list = [
-      am4core.color("#22c55e"), // Present
-      am4core.color("#ef4444"), // Absent
+      am4core.color("#16a34a"), // Present (green, deeper)
+      am4core.color("#FF0000"), // Absent (red, deeper)
     ];
 
-    // Slice styling
-    const sliceTemplate = series.slices.template;
-    sliceTemplate.stroke = am4core.color("#fff");
-    sliceTemplate.strokeWidth = 2;
-    sliceTemplate.strokeOpacity = 1;
-    sliceTemplate.cornerRadius = 6;
+    // Slice styling: bevel + glossy + shadow
+    const slice = series.slices.template;
+    slice.stroke = am4core.color("#ffffff");
+    slice.strokeWidth = 2;
+    slice.strokeOpacity = 1;
+    slice.cornerRadius = 10;
 
-    // Subtle gradient
-    const fillModifier = new am4core.LinearGradientModifier();
-    fillModifier.brightnesses = [-0.2, 0, -0.2];
-    fillModifier.offsets = [0, 0.5, 1];
-    sliceTemplate.fillModifier = fillModifier;
+    // Subtle glossy bevel
+    const fillMod = new am4core.LinearGradientModifier();
+    fillMod.brightnesses = [-0.25, 0, -0.25];
+    fillMod.offsets = [0, 0.5, 1];
+    slice.fillModifier = fillMod;
 
-    // Hover
-    const hoverState = sliceTemplate.states.getKey("hover");
-    hoverState.properties.scale = 1.05;
-    hoverState.properties.fillOpacity = 0.9;
+    // Shadow
+    const dropShadow = new am4core.DropShadowFilter();
+    dropShadow.blur = 3;
+    dropShadow.opacity = 0.25;
+    slice.filters.push(dropShadow);
 
-    // Labels and tooltips
+    // Hover and “explode on click”
+    const hover = slice.states.getKey("hover");
+    hover.properties.scale = 1.04;
+
+    const active = slice.states.getKey("active");
+    active.properties.shiftRadius = 0.08; // Explode when clicked
+
+    // Labels outside with leader lines
     series.labels.template.text =
       "{category}: {value.percent.formatNumber('#.0')}%";
     series.labels.template.fontSize = 12;
     series.labels.template.fontWeight = "600";
-    series.labels.template.fill = am4core.color("#374151");
-    series.ticks.template.disabled = false;
+    series.labels.template.fill = am4core.color("#111827");
+    series.labels.template.maxWidth = 140;
+    series.labels.template.truncate = true;
+    series.labels.template.wrap = true;
 
-    // Legend
+    series.ticks.template.disabled = false;
+    series.ticks.template.strokeOpacity = 0.6;
+    series.ticks.template.strokeWidth = 1;
+    series.ticks.template.length = 10;
+
+    // Legend on the right
     chart.legend = new am4charts.Legend();
     chart.legend.position = "right";
     chart.legend.labels.template.fontSize = 13;
     chart.legend.valueLabels.template.fontSize = 13;
 
     chartRef.current = chart;
-
     return () => {
       chart.dispose();
       chartRef.current = null;
     };
   }, []);
 
-  // Update data when attendanceData changes
   useEffect(() => {
     if (!chartRef.current) return;
 
-    const { present, total, absent } = totals;
+    const present = attendanceData.reduce(
+      (sum, row) => sum + (row.totalPresents || 0),
+      0
+    );
+    const total = attendanceData.reduce(
+      (sum, row) => sum + (row.totalClasses || 0),
+      0
+    );
+    const absent = Math.max(total - present, 0);
 
-    // If no data, clear chart data to avoid amCharts rendering errors
-    if (total <= 0) {
-      chartRef.current.data = [];
-      return;
-    }
-
-    chartRef.current.data = [
-      { category: "Present", value: present },
-      { category: "Absent", value: absent },
-    ];
-  }, [totals]);
+    chartRef.current.data =
+      total > 0
+        ? [
+            { category: "Present", value: present },
+            { category: "Absent", value: absent },
+          ]
+        : [];
+  }, [attendanceData]);
 
   return (
     <div className="flex h-screen bg-white">
@@ -576,18 +592,14 @@ const Student = () => {
         )}
 
         {/* 3D Pie Chart with amCharts (only chart, no table) */}
-        <div className="w-full max-w-4xl mx-auto my-8 bg-white rounded-xl shadow-lg p-6 relative">
+        <div className="w-full max-w-4xl mx-auto my-8 bg-white rounded-xl shadow-lg p-6">
           <h3 className="text-lg sm:text-xl font-semibold mb-4 text-orange-600 text-center">
             Overall Attendance Distribution
           </h3>
-
           <div className="relative">
-            <div
-              ref={chartDivRef}
-              style={{ width: "100%", height: 480 }}
-              className="rounded-lg"
-            />
-            {totals.total <= 0 && (
+            <div ref={chartDivRef} style={{ width: "100%", height: 480 }} />
+            {attendanceData.reduce((s, r) => s + (r.totalClasses || 0), 0) <=
+              0 && (
               <div className="absolute inset-0 flex items-center justify-center text-gray-500">
                 No data to display
               </div>
