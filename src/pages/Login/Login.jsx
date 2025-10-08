@@ -62,7 +62,9 @@ export default function LoginPage() {
     <>
       <div className="relative min-h-screen flex flex-col lg:flex-row items-center justify-center bg-gradient-to-br from-[#fff7ed] via-[#fdba74] to-[#e04f00] overflow-hidden">
         {/* Glassmorphism orange shapes */}
-        {glassShapes.map((cls, i) => <div key={i} className={cls} />)}
+        {glassShapes.map((cls, i) => (
+          <div key={i} className={cls} />
+        ))}
 
         {/* Left: Welcome panel */}
         <div className="hidden lg:flex w-1/2 h-full items-center justify-center px-12 relative z-10">
@@ -79,11 +81,15 @@ export default function LoginPage() {
                 transition={{ duration: 0.8, type: "spring" }}
                 className="p-6 bg-gradient-to-br from-orange-200/40 via-orange-400/40 to-orange-500/40 rounded-3xl shadow-2xl border-2 border-white/20 flex items-center justify-center"
                 style={{
-                  boxShadow: "0 0 40px 0 rgba(251,146,60,0.10), 0 8px 32px 0 rgba(234,88,12,0.08)",
+                  boxShadow:
+                    "0 0 40px 0 rgba(251,146,60,0.10), 0 8px 32px 0 rgba(234,88,12,0.08)",
                   backdropFilter: "blur(8px)",
                 }}
               >
-                <ShieldCheck size={64} className="text-orange-600 drop-shadow-xl" />
+                <ShieldCheck
+                  size={64}
+                  className="text-orange-600 drop-shadow-xl"
+                />
               </motion.div>
             </div>
             <motion.h1
@@ -100,7 +106,8 @@ export default function LoginPage() {
               transition={{ delay: 0.4, duration: 0.7 }}
               className="mt-6 text-lg opacity-90 font-medium text-orange-900"
             >
-              Log in to your dashboard.<br />
+              Log in to your dashboard.
+              <br />
               <span className="text-orange-700">Secure. Fast. Easy.</span>
             </motion.p>
             <motion.div
@@ -111,7 +118,9 @@ export default function LoginPage() {
             >
               <span className="text-orange-400 animate-bounce">🧡</span>
               <span>
-                <span className="font-bold text-white text-shadow-amber-900">Modern & Interactive</span>
+                <span className="font-bold text-white text-shadow-amber-900">
+                  Modern & Interactive
+                </span>
               </span>
             </motion.div>
           </motion.div>
@@ -156,7 +165,10 @@ export default function LoginPage() {
               )}
             </AnimatePresence>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-7 relative z-10">
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="space-y-5 relative z-10"
+            >
               {/* Email */}
               <div className="group">
                 <label className="block text-sm font-semibold text-orange-700 mb-1 tracking-wide">
@@ -182,7 +194,17 @@ export default function LoginPage() {
                     autoComplete="username"
                   />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-orange-400 pointer-events-none">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" className="inline-block"><path d="M2.5 6.5l7.5 5 7.5-5" /><rect x="2.5" y="4.5" width="15" height="11" rx="2.5" /></svg>
+                    <svg
+                      width="20"
+                      height="20"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      className="inline-block"
+                    >
+                      <path d="M2.5 6.5l7.5 5 7.5-5" />
+                      <rect x="2.5" y="4.5" width="15" height="11" rx="2.5" />
+                    </svg>
                   </span>
                 </div>
                 {errors.email && (
@@ -203,7 +225,11 @@ export default function LoginPage() {
                     {...register("password", {
                       required: "Password is required",
                     })}
-                    onKeyUp={(e) => setCapsLockOn(e.getModifierState && e.getModifierState("CapsLock"))}
+                    onKeyUp={(e) =>
+                      setCapsLockOn(
+                        e.getModifierState && e.getModifierState("CapsLock")
+                      )
+                    }
                     className={`w-full px-4 py-3 pr-12 border rounded-xl focus:outline-none focus:ring-2 bg-white/80 transition shadow-sm text-orange-900 font-medium tracking-wide ${
                       errors.password
                         ? "border-red-500 focus:ring-red-400"
