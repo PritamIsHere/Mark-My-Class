@@ -158,8 +158,8 @@ const Student = () => {
     series.dataFields.value = "value";
     series.dataFields.category = "category";
     series.colors.list = [
-      am4core.color("#16a34a"), // Present (green)
-      am4core.color("#FF0000"), // Absent (red)
+      am4core.color("#1E88E5"), // Present (green)
+      am4core.color("#FB8C00"), // Absent (red)
     ];
     const slice = series.slices.template;
     slice.stroke = am4core.color("#ffffff");
