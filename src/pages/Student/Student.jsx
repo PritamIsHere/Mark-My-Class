@@ -16,6 +16,8 @@ import * as am4charts from "@amcharts/amcharts4/charts";
 import am4themes_dataviz from "@amcharts/amcharts4/themes/dataviz";
 import am4themes_animated from "@amcharts/amcharts4/themes/animated";
 
+import Image from "../../assets/Image";
+
 // -- Custom Counter hook for animated numbers --
 function useAnimatedNumber(value, duration = 900) {
   const [animatedValue, setAnimatedValue] = useState(0);
@@ -597,22 +599,18 @@ const Student = () => {
 
         {/* Right Side Icons & User */}
         <div className="flex items-center gap-4 relative">
-          {/* Bell Icon */}
-          {/* <button
-            aria-label="Notifications"
-            className="relative inline-flex items-center justify-center h-10 w-10 rounded-full border border-orange-200 bg-white text-orange-600 hover:bg-orange-50 transition-colors"
-          >
-            <Bell size={18} />
-          </button> */}
-
           {/* User Dropdown */}
           <div className="relative">
             <div
               className="flex items-center gap-2 cursor-pointer"
               onClick={() => setOpen((prev) => !prev)}
             >
-              <div className="w-9 h-9 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold">
-                <User size={18} />
+              <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-gray-100 border-3 border-orange-200 animate-pulse">
+                <img
+                  src={CurrentUser?.existuser?.avatar || Image.DefaultUser}
+                  alt={`${CurrentUser?.existuser?.name}'s avatar`}
+                  className="w-full h-full object-cover"
+                />
               </div>
               <span className="font-medium text-gray-700 hidden sm:block">
                 {CurrentUser?.existuser?.name}

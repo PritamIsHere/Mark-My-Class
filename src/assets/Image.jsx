@@ -10,6 +10,7 @@ import image8 from "./image8.png";
 import image9 from "./image9.png";
 import image10 from "./modi.png";
 import logo from "./favicon-32x32.png";
+import DefaultUser from "./DefaultUser.png";
 const Image = {
   logo,
   spiner,
@@ -23,6 +24,7 @@ const Image = {
   image8,
   image9,
   image10,
+  DefaultUser,
 };
 
 export default Image;
