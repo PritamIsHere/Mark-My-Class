@@ -8,6 +8,7 @@ import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 import * as am4core from "@amcharts/amcharts4/core";
 import * as am4charts from "@amcharts/amcharts4/charts";
 import am4themes_dataviz from "@amcharts/amcharts4/themes/dataviz";
+import am4themes_animated from "@amcharts/amcharts4/themes/animated";
 
 const Student = () => {
   const { userRole, fullLoading, authToken, CurrentUser } = useAuth();
@@ -134,75 +135,156 @@ const Student = () => {
   const chartDivRef = useRef(null);
 
   // Create chart
+  // useEffect(() => {
+  //   if (!chartDivRef.current) return;
+  //   am4core.useTheme(am4themes_dataviz);
+
+  //   const chart = am4core.create(chartDivRef.current, am4charts.PieChart3D);
+  //   chart.hiddenState.properties.opacity = 0;
+  //   chart.responsive.enabled = true;
+  //   chart.innerRadius = am4core.percent(0);
+  //   chart.depth = 50;
+  //   chart.angle = 20;
+
+  //   const title = chart.titles.create();
+  //   title.text =
+  //     selectedSubject === "Overall"
+  //       ? "Overall Attendance Distribution"
+  //       : `${selectedSubject} Attendance Distribution`;
+  //   title.fontSize = 18;
+  //   title.fontWeight = "700";
+  //   title.marginBottom = 10;
+
+  //   const series = chart.series.push(new am4charts.PieSeries3D());
+  //   series.dataFields.value = "value";
+  //   series.dataFields.category = "category";
+  //   series.colors.list = [
+  //     am4core.color("#1E88E5"), // Present (green)
+  //     am4core.color("#FB8C00"), // Absent (red)
+  //   ];
+  //   const slice = series.slices.template;
+  //   slice.stroke = am4core.color("#ffffff");
+  //   slice.strokeWidth = 2;
+  //   slice.strokeOpacity = 1;
+  //   slice.cornerRadius = 10;
+
+  //   // Glossy
+  //   const fillMod = new am4core.LinearGradientModifier();
+  //   fillMod.brightnesses = [-0.25, 0, -0.25];
+  //   fillMod.offsets = [0, 0.5, 1];
+  //   slice.fillModifier = fillMod;
+
+  //   const dropShadow = new am4core.DropShadowFilter();
+  //   dropShadow.blur = 3;
+  //   dropShadow.opacity = 0.25;
+  //   slice.filters.push(dropShadow);
+
+  //   // --- REMOVE slice interaction code (make chart static) ---
+  //   // const hover = slice.states.getKey("hover");
+  //   // hover.properties.scale = 1.04;
+  //   // const active = slice.states.getKey("active");
+  //   // active.properties.shiftRadius = 0.08; // Explode when clicked
+
+  //   series.labels.template.text =
+  //     "{category}: {value.percent.formatNumber('#.0')}%";
+  //   series.labels.template.fontSize = 12;
+  //   series.labels.template.fontWeight = "600";
+  //   series.labels.template.fill = am4core.color("#111827");
+  //   series.labels.template.maxWidth = 140;
+  //   series.labels.template.truncate = true;
+  //   series.labels.template.wrap = true;
+
+  //   series.ticks.template.disabled = false;
+  //   series.ticks.template.strokeOpacity = 0.6;
+  //   series.ticks.template.strokeWidth = 1;
+  //   series.ticks.template.length = 10;
+
+  //   chart.legend = new am4charts.Legend();
+  //   chart.legend.position = "right";
+  //   chart.legend.labels.template.fontSize = 13;
+  //   chart.legend.valueLabels.template.fontSize = 13;
+  //   // --- MAKE LEGEND STATIC (not clickable) ---
+  //   chart.legend.itemContainers.template.clickable = false;
+  //   chart.legend.itemContainers.template.focusable = false;
+  //   chart.legend.itemContainers.template.cursorOverStyle =
+  //     am4core.MouseCursorStyle.default;
+  //   chart.legend.itemContainers.template.events.disableType("hit");
+
+  //   chartRef.current = chart;
+  //   return () => {
+  //     chart.dispose();
+  //     chartRef.current = null;
+  //   };
+  //   // eslint-disable-next-line
+  // }, [selectedSubject]);
+
   useEffect(() => {
     if (!chartDivRef.current) return;
+
+    // Apply themes
+    am4core.useTheme(am4themes_animated);
     am4core.useTheme(am4themes_dataviz);
 
+    // Create chart
     const chart = am4core.create(chartDivRef.current, am4charts.PieChart3D);
     chart.hiddenState.properties.opacity = 0;
     chart.responsive.enabled = true;
     chart.innerRadius = am4core.percent(0);
-    chart.depth = 50;
-    chart.angle = 20;
+    chart.depth = 30;
+    chart.angle = 35;
 
+    // Chart title
     const title = chart.titles.create();
     title.text =
       selectedSubject === "Overall"
         ? "Overall Attendance Distribution"
         : `${selectedSubject} Attendance Distribution`;
-    title.fontSize = 18;
+    title.fontSize = 20;
     title.fontWeight = "700";
-    title.marginBottom = 10;
+    title.fill = am4core.color("#333333");
+    title.marginBottom = 15;
 
+    // Series
     const series = chart.series.push(new am4charts.PieSeries3D());
     series.dataFields.value = "value";
     series.dataFields.category = "category";
     series.colors.list = [
-      am4core.color("#1E88E5"), // Present (green)
-      am4core.color("#FB8C00"), // Absent (red)
+      am4core.color("#1E88E5"), // Present - Blue
+      am4core.color("#ff8700"), // Absent - Orange
     ];
+
     const slice = series.slices.template;
-    slice.stroke = am4core.color("#ffffff");
-    slice.strokeWidth = 2;
-    slice.strokeOpacity = 1;
-    slice.cornerRadius = 10;
+    // slice.stroke = am4core.color("#F28C28");
+    // slice.strokeWidth = 1;
+    // slice.strokeOpacity = 1;
+    // slice.cornerRadius = 10;
+    slice.filters.clear(); // Remove shadow
 
-    // Glossy
-    const fillMod = new am4core.LinearGradientModifier();
-    fillMod.brightnesses = [-0.25, 0, -0.25];
-    fillMod.offsets = [0, 0.5, 1];
-    slice.fillModifier = fillMod;
+    // Smooth "fill" animation on load
+    series.hiddenState.properties.opacity = 1;
+    series.hiddenState.properties.startAngle = -90;
+    series.hiddenState.properties.endAngle = -90;
 
-    const dropShadow = new am4core.DropShadowFilter();
-    dropShadow.blur = 3;
-    dropShadow.opacity = 0.25;
-    slice.filters.push(dropShadow);
-
-    // --- REMOVE slice interaction code (make chart static) ---
-    // const hover = slice.states.getKey("hover");
-    // hover.properties.scale = 1.04;
-    // const active = slice.states.getKey("active");
-    // active.properties.shiftRadius = 0.08; // Explode when clicked
-
+    // Labels
     series.labels.template.text =
       "{category}: {value.percent.formatNumber('#.0')}%";
-    series.labels.template.fontSize = 12;
+    series.labels.template.fontSize = 13;
     series.labels.template.fontWeight = "600";
-    series.labels.template.fill = am4core.color("#111827");
-    series.labels.template.maxWidth = 140;
+    series.labels.template.fill = am4core.color("#555555");
+    series.labels.template.maxWidth = 150;
     series.labels.template.truncate = true;
     series.labels.template.wrap = true;
 
-    series.ticks.template.disabled = false;
-    series.ticks.template.strokeOpacity = 0.6;
+    // Ticks
+    series.ticks.template.strokeOpacity = 0.5;
     series.ticks.template.strokeWidth = 1;
     series.ticks.template.length = 10;
 
+    // Legend
     chart.legend = new am4charts.Legend();
     chart.legend.position = "right";
     chart.legend.labels.template.fontSize = 13;
     chart.legend.valueLabels.template.fontSize = 13;
-    // --- MAKE LEGEND STATIC (not clickable) ---
     chart.legend.itemContainers.template.clickable = false;
     chart.legend.itemContainers.template.focusable = false;
     chart.legend.itemContainers.template.cursorOverStyle =
@@ -210,6 +292,7 @@ const Student = () => {
     chart.legend.itemContainers.template.events.disableType("hit");
 
     chartRef.current = chart;
+
     return () => {
       chart.dispose();
       chartRef.current = null;
