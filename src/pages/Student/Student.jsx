@@ -154,6 +154,14 @@ const Student = () => {
 
   // Pie chart data based on dropdown
   const pieData = useMemo(() => {
+    if (apiLoading) {
+      // Return placeholder data while loading
+      return [
+        { category: "Present", value: 0 },
+        { category: "Absent", value: 0 },
+      ];
+    }
+
     if (selectedSubject === "Overall") {
       const present = attendanceData.reduce(
         (sum, row) => sum + (row.totalPresents || 0),
@@ -164,6 +172,7 @@ const Student = () => {
         0
       );
       const absent = Math.max(total - present, 0);
+
       return total > 0
         ? [
             { category: "Present", value: present },
@@ -179,6 +188,7 @@ const Student = () => {
       const present =
         found.totalPresents ?? found.presents ?? found.present ?? 0;
       const absent = Math.max(total - present, 0);
+
       return total > 0
         ? [
             { category: "Present", value: present },
@@ -186,7 +196,7 @@ const Student = () => {
           ]
         : [];
     }
-  }, [attendanceData, selectedSubject]);
+  }, [attendanceData, selectedSubject, apiLoading]);
 
   // Chart refs
   const chartRef = useRef(null);
@@ -906,6 +916,14 @@ const Student = () => {
             }}
           >
             <div ref={chartDivRef} style={{ width: "100%", height: "100%" }} />
+            {apiLoading && (
+              <div className="flex justify-center items-center bg-white py-10">
+                <div className="relative w-12 h-12">
+                  <div className="absolute inset-0 border-4 border-orange-100 rounded-full"></div>
+                  <div className="absolute inset-0 border-4 border-neutral-200 border-t-orange-500 rounded-full animate-spin"></div>
+                </div>
+              </div>
+            )}
             {pieData.length === 0 && (
               <div className="absolute inset-0 flex items-center justify-center text-gray-500">
                 No data to display
