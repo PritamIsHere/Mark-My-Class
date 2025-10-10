@@ -657,18 +657,14 @@ const CreateQr = () => {
     }
   };
 
-  const handelCopyQr = async () => {
-    if (!qrImage) return;
-
+  const handelCopySession = () => {
+    if (!session?.sessionId) return;
     try {
       setCopying(true);
-      const response = await fetch(qrImage);
-      const blob = await response.blob();
-      const data = [new ClipboardItem({ [blob.type]: blob })];
-      await navigator.clipboard.write(data);
-      toast.success("Image copied to clipboard!");
-    } catch (error) {
-      toast.error("Copy failed — your browser may not support image copying.");
+      navigator.clipboard.writeText(session?.sessionId);
+      toast.success("Session copied to clipboard!");
+    } catch (_) {
+      toast.error("Failed to copy Session");
     } finally {
       setCopying(false);
     }
@@ -869,8 +865,8 @@ const CreateQr = () => {
                     <span>Share QR</span>
                   </button>
                   <button
-                    onClick={handelCopyQr}
-                    title="Copy QR Code"
+                    onClick={handelCopySession}
+                    title="Copy QR Session"
                     className="p-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center"
                   >
                     <ClipboardCopy className="w-4 h-4" />
