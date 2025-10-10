@@ -889,7 +889,7 @@ const ScanQr = () => {
       return showModal("error", "Auth token missing. Log in again.");
     // Save sessionId for submission step
     setSessionIdForCapture(usedSessionId);
-    // Open selfie capture modal
+    // Open selfie/upload capture modal
     await openFrontCamera();
   };
 
@@ -989,12 +989,30 @@ const ScanQr = () => {
     setCapturedImage(imgData);
   };
 
-  // --- Submit attendance with image ---
+  // --- Handle file upload from gallery ---
+  const handleFileUpload = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        setCapturedImage(ev.target.result); // triggers preview and enables submit
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // --- Clear image for recapture/upload again ---
+  const clearImage = async () => {
+    setCapturedImage(null);
+    await restartFrontCamera();
+  };
+
+  // --- Submit attendance with image (camera or upload) ---
   const submitWithImage = async () => {
     if (!capturedImage || !capturedImage.startsWith("data:image"))
       return showModal(
         "error",
-        "Please capture a valid image before submitting."
+        "Please capture or upload a valid image before submitting."
       );
     setLoading(true);
     let currentLocation;
@@ -1028,8 +1046,6 @@ const ScanQr = () => {
       showModal("error", serverMsg);
       // Do NOT reset sessionIdForCapture here; allow user to recapture and submit again
       // Keep camera open so user can try again
-      // Optionally, you can restart camera if needed
-      // await restartFrontCamera();
     } finally {
       setLoading(false);
     }
@@ -1114,7 +1130,7 @@ const ScanQr = () => {
         </div>
       </div>
 
-      {/* Selfie Modal */}
+      {/* Selfie/Gallery Modal */}
       {cameraOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-2"
@@ -1125,6 +1141,7 @@ const ScanQr = () => {
           <div className="relative w-full max-w-lg bg-white rounded-xl p-4 flex flex-col items-center">
             {!capturedImage ? (
               <>
+                {/* Camera preview */}
                 <video
                   ref={videoRef}
                   autoPlay
@@ -1140,22 +1157,27 @@ const ScanQr = () => {
                 >
                   Capture Image
                 </button>
+                <div className="my-2 text-gray-500 text-sm">or</div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="mb-2"
+                  onChange={handleFileUpload}
+                  disabled={loading}
+                />
               </>
             ) : (
               <div className="w-full relative flex flex-col items-center mt-4">
                 <img
                   src={capturedImage}
-                  alt="Captured"
+                  alt="Captured or Uploaded"
                   className="w-full rounded-lg object-cover max-h-[70vh]"
                 />
                 <button
-                  onClick={async () => {
-                    setCapturedImage(null);
-                    await restartFrontCamera();
-                  }}
+                  onClick={clearImage}
                   className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-600"
                   style={{ zIndex: 10 }}
-                  title="Recapture"
+                  title="Recapture or Re-upload"
                   disabled={loading}
                 >
                   ×
