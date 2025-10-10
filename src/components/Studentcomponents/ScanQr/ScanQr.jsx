@@ -759,33 +759,7 @@ import axiosInstance from "../../../api/axiosInstance";
 import Sounds from "../../../assets/Sounds";
 import NotificationModal from "../../../components/Models/NotificationModal";
 
-// --- API call to mark attendance ---
-async function sendAttendance({
-  studentId,
-  sessionId,
-  lat,
-  lng,
-  liveImage,
-  authToken,
-}) {
-  try {
-    const response = await axiosInstance.post(
-      "/attendance/mark",
-      { studentId, sessionId, lat, lng, liveImage },
-      {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-}
-
-// --- Utility: Parse sessionId from QR ---
+// Utility: Parse sessionId from QR
 function parseSessionId(raw) {
   if (!raw) return "";
   try {
@@ -815,6 +789,19 @@ function parseSessionId(raw) {
   return text;
 }
 
+// Convert base64 dataURL to Blob
+function dataURLtoBlob(dataurl) {
+  const arr = dataurl.split(",");
+  const mime = arr[0].match(/:(.*?);/)[1];
+  const bstr = atob(arr[1]);
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+  return new Blob([u8arr], { type: mime });
+}
+
 const ScanQr = () => {
   // State
   const [code, setCode] = useState("");
@@ -842,7 +829,6 @@ const ScanQr = () => {
   const [modalType, setModalType] = useState("info");
   const [modalMessage, setModalMessage] = useState("");
 
-  // --- Always clean up both camera streams on unmount ---
   useEffect(() => {
     return () => {
       stopCameraScan();
@@ -851,13 +837,13 @@ const ScanQr = () => {
     // eslint-disable-next-line
   }, []);
 
-  // --- Play success sound ---
+  // Play success sound
   const playSuccessSound = () => {
     const audio = new Audio(Sounds.Success);
     audio.play().catch(() => {});
   };
 
-  // --- Location ---
+  // Location
   const getLocation = () =>
     new Promise((resolve, reject) => {
       if (!("geolocation" in navigator))
@@ -872,14 +858,14 @@ const ScanQr = () => {
       );
     });
 
-  // --- Modal Helper ---
+  // Modal Helper
   const showModal = (type, message) => {
     setModalType(type);
     setModalMessage(message);
     setModalOpen(true);
   };
 
-  // --- Core logic: Handle QR code found ---
+  // Core logic: Handle QR code found
   const handleQrFound = async (sessionIdFromQr) => {
     const usedSessionId = parseSessionId(sessionIdFromQr);
     if (!studentId)
@@ -887,15 +873,12 @@ const ScanQr = () => {
     if (!usedSessionId) return showModal("error", "Invalid QR code.");
     if (!authToken)
       return showModal("error", "Auth token missing. Log in again.");
-    // Save sessionId for submission step
     setSessionIdForCapture(usedSessionId);
-    // Open selfie/upload capture modal
     await openFrontCamera();
   };
 
-  // --- Camera scan (back camera) for QR ---
+  // Camera scan (back camera) for QR
   const startCameraScan = async () => {
-    // Always stop selfie camera first
     await stopFrontCamera();
     setScanning(true);
     try {
@@ -932,16 +915,15 @@ const ScanQr = () => {
       if (isScanning) await html5QrCodeRef.current.stop();
       await html5QrCodeRef.current.clear();
     } catch (err) {
-      // ignore
     } finally {
       html5QrCodeRef.current = null;
       setScanning(false);
     }
   };
 
-  // --- Selfie capture (front camera) ---
+  // Selfie capture (front camera)
   const openFrontCamera = async () => {
-    await stopCameraScan(); // ensure QR isn't using camera
+    await stopCameraScan();
     setCameraOpen(true);
     setCapturedImage(null);
     try {
@@ -967,12 +949,11 @@ const ScanQr = () => {
     }
   };
   const restartFrontCamera = async () => {
-    // For recapture
     await stopFrontCamera();
     await openFrontCamera();
   };
 
-  // --- Capture image from front camera ---
+  // Capture image from front camera
   const captureImage = () => {
     if (!videoRef.current || !canvasRef.current) return;
     const video = videoRef.current;
@@ -980,7 +961,6 @@ const ScanQr = () => {
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     const ctx = canvas.getContext("2d");
-    // Flip horizontally to show actual face
     ctx.translate(canvas.width, 0);
     ctx.scale(-1, 1);
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -989,32 +969,34 @@ const ScanQr = () => {
     setCapturedImage(imgData);
   };
 
-  // --- Handle file upload from gallery ---
+  // Handle file upload from gallery
   const handleFileUpload = (e) => {
     const file = e.target.files && e.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = (ev) => {
-        setCapturedImage(ev.target.result); // triggers preview and enables submit
+        setCapturedImage(ev.target.result);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  // --- Clear image for recapture/upload again ---
+  // Clear image for recapture/upload again
   const clearImage = async () => {
     setCapturedImage(null);
     await restartFrontCamera();
   };
 
-  // --- Submit attendance with image (camera or upload) ---
+  // Submit attendance with image (camera or upload), using FormData
   const submitWithImage = async () => {
     if (!capturedImage || !capturedImage.startsWith("data:image"))
       return showModal(
         "error",
         "Please capture or upload a valid image before submitting."
       );
+
     setLoading(true);
+
     let currentLocation;
     try {
       currentLocation = await getLocation();
@@ -1022,18 +1004,24 @@ const ScanQr = () => {
       setLoading(false);
       return showModal("error", errMsg);
     }
+
     try {
-      const payload = {
-        studentId,
-        sessionId: sessionIdForCapture,
-        lat: currentLocation.latitude,
-        lng: currentLocation.longitude,
-        liveImage: capturedImage,
-      };
-      const result = await sendAttendance({ ...payload, authToken });
+      const formData = new FormData();
+      formData.append("studentId", studentId);
+      formData.append("sessionId", sessionIdForCapture);
+      formData.append("lat", currentLocation.latitude);
+      formData.append("lng", currentLocation.longitude);
+      formData.append("liveImage", dataURLtoBlob(capturedImage), "selfie.jpg");
+
+      const response = await axiosInstance.post("/attendance/mark", formData, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
       showModal(
         "success",
-        result?.message || "Attendance marked successfully!"
+        response.data?.message || "Attendance marked successfully!"
       );
       playSuccessSound();
       await stopFrontCamera();
@@ -1044,20 +1032,17 @@ const ScanQr = () => {
           ? data
           : data?.error ?? data?.message ?? err?.message ?? "Request failed";
       showModal("error", serverMsg);
-      // Do NOT reset sessionIdForCapture here; allow user to recapture and submit again
-      // Keep camera open so user can try again
     } finally {
       setLoading(false);
     }
   };
 
-  // --- Manual input flow (same as scan) ---
+  // Manual input flow (same as scan)
   const onManualSubmit = async () => {
     if (!code) return showModal("error", "Please enter a QR code.");
     await handleQrFound(code);
   };
 
-  // --- UI ---
   return (
     <div className="flex h-screen w-full bg-gray-50">
       <Sidebar />
