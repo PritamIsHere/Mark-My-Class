@@ -132,7 +132,7 @@ const Createuser = () => {
       <Sidebar />
 
       {/* Main content with scroll */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto mb-15 md:mb-0">
         <div className="min-h-full bg-gradient-to-br from-orange-100 to-white flex items-center justify-center p-6">
           <div className="w-full max-w-3xl bg-white rounded-2xl shadow-xl border border-orange-100 p-8">
             <h1 className="text-2xl font-bold text-orange-600 mb-6 text-center">

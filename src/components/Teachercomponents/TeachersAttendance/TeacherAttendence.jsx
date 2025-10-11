@@ -139,7 +139,7 @@
 
 // export default TeacherAttendence;
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Sidebar from "../../Sidebar/Sidebar";
 import axiosInstance from "../../../api/axiosInstance";
 import { useAuth } from "../../../Context/AuthContext";
@@ -147,6 +147,7 @@ import toast from "react-hot-toast";
 import ConfirmModal from "../../../components/Models/ConfirmModal";
 import "react-loading-skeleton/dist/skeleton.css";
 import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
+import { BarChart2, ChartNoAxesCombined, Filter } from "lucide-react";
 
 const TeacherAttendance = () => {
   const [stats, setStats] = useState([]);
@@ -230,18 +231,113 @@ const TeacherAttendance = () => {
     fetchStats();
   }, [teacherId, authToken]);
 
-  return (
-    <div className="flex min-h-screen bg-gray-50">
-      <Sidebar />
-      <div className="flex-1 p-6 max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-orange-500 text-left mb-8">
-          📊 Teacher Attendance Stats
-        </h1>
+  const [filterValue, setFilterValue] = useState("");
+  const filteredStats = useMemo(() => {
+    if (filterValue === "active")
+      return stats.filter((s) => s.status === "active");
+    if (filterValue === "inactive")
+      return stats.filter((s) => s.status === "inactive");
+    if (filterValue === "recent")
+      return [...stats].sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+    return stats;
+  }, [stats, filterValue]);
 
-        {loading ? (
-          <SkeletonTheme baseColor="#fed7aa" highlightColor="#ffedd5">
+  return (
+    <>
+      <div className="flex h-screen bg-white">
+        {/* Sidebar */}
+        <Sidebar />
+
+        {/* Main Content */}
+        <div className="flex-1 px-6 overflow-y-auto mb-15 md:mb-0">
+          <div className="w-full flex justify-between sticky top-0 z-50 bg-white p-4 md:flex-row flex-col space-y-2">
+            <h1 className="text-3xl font-bold text-orange-600 flex items-center gap-x-2">
+              <ChartNoAxesCombined size={40} /> Attendance Stats
+            </h1>
+            <div className="w-full md:w-auto">
+              <select
+                value={filterValue}
+                onChange={(e) => setFilterValue(e.target.value)}
+                className="w-full md:w-auto border border-orange-300 text-gray-700 rounded-lg px-4 py-2 shadow-sm focus:ring-2 focus:ring-orange-400 focus:outline-none bg-white"
+              >
+                <option value="">All Sessions</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="recent">Recently Created</option>
+              </select>
+            </div>
+          </div>
+          {/* Table */}
+          {loading ? (
+            <SkeletonTheme baseColor="#fed7aa" highlightColor="#ffedd5">
+              <div className="overflow-x-auto">
+                {/* Skeleton Table for Desktop */}
+                <table className="hidden md:table min-w-full bg-white shadow-lg rounded-lg overflow-hidden">
+                  <thead className="bg-orange-500 text-white">
+                    <tr>
+                      <th className="py-3 px-4 text-left">Session ID</th>
+                      <th className="py-3 px-4 text-left">Class Name</th>
+                      <th className="py-3 px-4 text-left">Created At</th>
+                      <th className="py-3 px-4 text-center">Total Marked</th>
+                      <th className="py-3 px-4 text-center">Status</th>
+                      <th className="py-3 px-4 text-center">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[...Array(5)].map((_, i) => (
+                      <tr key={i} className="border-b border-neutral-300">
+                        <td className="py-3 px-4">
+                          <Skeleton width={120} />
+                        </td>
+                        <td className="py-3 px-4">
+                          <Skeleton width={140} />
+                        </td>
+                        <td className="py-3 px-4">
+                          <Skeleton width={180} />
+                        </td>
+                        <td className="py-3 px-4 text-center">
+                          <Skeleton width={60} />
+                        </td>
+                        <td className="py-3 px-4 text-center">
+                          <Skeleton width={70} />
+                        </td>
+                        <td className="py-3 px-4 text-center">
+                          <Skeleton width={100} />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                {/* 📱 Skeleton Cards for Mobile */}
+                <div className="md:hidden space-y-4 mt-4">
+                  {[...Array(3)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="bg-white shadow rounded-lg p-4 space-y-2"
+                    >
+                      <Skeleton height={20} width={120} />
+                      <Skeleton count={3} />
+                      <div className="flex gap-2 mt-2">
+                        <Skeleton height={35} width="100%" />
+                        <Skeleton height={35} width="100%" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </SkeletonTheme>
+          ) : error ? (
+            <p className="text-red-600 text-center font-semibold">{error}</p>
+          ) : stats.length === 0 ? (
+            <p className="text-gray-600 text-center">
+              No attendance data found.
+            </p>
+          ) : (
             <div className="overflow-x-auto">
-              {/* Skeleton Table for Desktop */}
+              {/* Table for md+ screens */}
               <table className="hidden md:table min-w-full bg-white shadow-lg rounded-lg overflow-hidden">
                 <thead className="bg-orange-500 text-white">
                   <tr>
@@ -254,91 +350,140 @@ const TeacherAttendance = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {[...Array(5)].map((_, i) => (
-                    <tr key={i} className="border-b border-neutral-300">
+                  {filteredStats.map((stat) => (
+                    <tr
+                      key={stat.sessionId}
+                      className="border-b border-neutral-300 hover:bg-orange-50 transition-colors"
+                    >
+                      <td className="py-3 px-4">{stat.sessionId}</td>
+                      <td className="py-3 px-4">{stat.className}</td>
                       <td className="py-3 px-4">
-                        <Skeleton width={120} />
-                      </td>
-                      <td className="py-3 px-4">
-                        <Skeleton width={140} />
-                      </td>
-                      <td className="py-3 px-4">
-                        <Skeleton width={180} />
+                        {new Date(stat.createdAt).toLocaleString()}
                       </td>
                       <td className="py-3 px-4 text-center">
-                        <Skeleton width={60} />
+                        {stat.totalMarked}
                       </td>
-                      <td className="py-3 px-4 text-center">
-                        <Skeleton width={70} />
+                      <td
+                        className={`py-3 px-4 text-center font-bold ${
+                          stat.status === "active"
+                            ? "text-green-500"
+                            : "text-red-500"
+                        }`}
+                      >
+                        {stat.status}
                       </td>
-                      <td className="py-3 px-4 text-center">
-                        <Skeleton width={100} />
+                      <td className="py-3 px-4 text-center flex justify-center gap-2">
+                        {stat.status !== "inactive" && (
+                          <button
+                            onClick={() => {
+                              setConfirmOpen(true);
+                              setConfirmConfig({
+                                title: "End Class",
+                                message:
+                                  "Are you sure you want to end this session?",
+                                type: "warning",
+                              });
+                              setConfirmAction(
+                                () => () => endSession(stat.sessionId)
+                              );
+                            }}
+                            className="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-8 rounded-md font-semibold transition flex justify-center items-center"
+                            disabled={
+                              actionLoading.endId === stat.sessionId ||
+                              actionLoading.deleteId === stat.sessionId
+                            }
+                          >
+                            <span
+                              className={`transition-opacity ${
+                                actionLoading.endId === stat.sessionId
+                                  ? "opacity-0"
+                                  : "opacity-100"
+                              }`}
+                            >
+                              End
+                            </span>
+                            {actionLoading.endId === stat.sessionId && (
+                              <>
+                                <div className="absolute w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                              </>
+                            )}
+                          </button>
+                        )}
+
+                        <button
+                          onClick={() => {
+                            setConfirmOpen(true);
+                            setConfirmConfig({
+                              title: "Delete Class",
+                              message:
+                                "Are you sure you want to delete this session? This cannot be undone.",
+                              type: "danger",
+                            });
+                            setConfirmAction(
+                              () => () => deleteSession(stat.sessionId)
+                            );
+                          }}
+                          className={`${
+                            stat.status === "inactive" ? "w-full" : ""
+                          } relative bg-red-500 hover:bg-red-600 text-white py-2 px-8 rounded-md font-semibold transition flex justify-center items-center`}
+                          disabled={
+                            actionLoading.deleteId === stat.sessionId ||
+                            actionLoading.endId === stat.sessionId
+                          }
+                        >
+                          <span
+                            className={`transition-opacity ${
+                              actionLoading.deleteId === stat.sessionId
+                                ? "opacity-0"
+                                : "opacity-100"
+                            }`}
+                          >
+                            Delete
+                          </span>
+                          {actionLoading.deleteId === stat.sessionId && (
+                            <>
+                              <div className="absolute w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            </>
+                          )}
+                        </button>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
 
-              {/* 📱 Skeleton Cards for Mobile */}
-              <div className="md:hidden space-y-4 mt-4">
-                {[...Array(3)].map((_, i) => (
+              {/* For Small Screen device */}
+              <div className="md:hidden space-y-4">
+                {filteredStats.map((stat) => (
                   <div
-                    key={i}
+                    key={stat.sessionId}
                     className="bg-white shadow rounded-lg p-4 space-y-2"
                   >
-                    <Skeleton height={20} width={120} />
-                    <Skeleton count={3} />
-                    <div className="flex gap-2 mt-2">
-                      <Skeleton height={35} width="100%" />
-                      <Skeleton height={35} width="100%" />
+                    <div className="flex justify-between items-center">
+                      <h2 className="font-bold text-lg">{stat.className}</h2>
+                      <span
+                        className={`text-sm font-bold ${
+                          stat.status === "active"
+                            ? "text-green-500"
+                            : "text-red-500"
+                        }`}
+                      >
+                        {stat.status}
+                      </span>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </SkeletonTheme>
-        ) : error ? (
-          <p className="text-red-600 text-center font-semibold">{error}</p>
-        ) : stats.length === 0 ? (
-          <p className="text-gray-600 text-center">No attendance data found.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            {/* Table for md+ screens */}
-            <table className="hidden md:table min-w-full bg-white shadow-lg rounded-lg overflow-hidden">
-              <thead className="bg-orange-500 text-white">
-                <tr>
-                  <th className="py-3 px-4 text-left">Session ID</th>
-                  <th className="py-3 px-4 text-left">Class Name</th>
-                  <th className="py-3 px-4 text-left">Created At</th>
-                  <th className="py-3 px-4 text-center">Total Marked</th>
-                  <th className="py-3 px-4 text-center">Status</th>
-                  <th className="py-3 px-4 text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {stats.map((stat) => (
-                  <tr
-                    key={stat.sessionId}
-                    className="border-b border-neutral-300 hover:bg-orange-50 transition-colors"
-                  >
-                    <td className="py-3 px-4">{stat.sessionId}</td>
-                    <td className="py-3 px-4">{stat.className}</td>
-                    <td className="py-3 px-4">
+                    <p className="text-gray-600 text-sm">
+                      <span className="font-medium">Created At:</span>{" "}
                       {new Date(stat.createdAt).toLocaleString()}
-                    </td>
-                    <td className="py-3 px-4 text-center">
+                    </p>
+                    <p className="text-gray-600 text-sm">
+                      <span className="font-medium">Total Marked:</span>{" "}
                       {stat.totalMarked}
-                    </td>
-                    <td
-                      className={`py-3 px-4 text-center font-bold ${
-                        stat.status === "active"
-                          ? "text-green-500"
-                          : "text-red-500"
-                      }`}
-                    >
-                      {stat.status}
-                    </td>
-                    <td className="py-3 px-4 text-center flex justify-center gap-2">
+                    </p>
+                    <p className="text-gray-600 text-sm">
+                      <span className="font-medium">Session id:</span>{" "}
+                      {stat.sessionId}
+                    </p>
+                    <div className="flex gap-2 mt-2">
                       {stat.status !== "inactive" && (
                         <button
                           onClick={() => {
@@ -353,25 +498,19 @@ const TeacherAttendance = () => {
                               () => () => endSession(stat.sessionId)
                             );
                           }}
-                          className="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-8 rounded-md font-semibold transition flex justify-center items-center"
                           disabled={
                             actionLoading.endId === stat.sessionId ||
                             actionLoading.deleteId === stat.sessionId
                           }
+                          className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded-md font-semibold transition flex justify-center items-center gap-3 disabled:opacity-80"
                         >
-                          <span
-                            className={`transition-opacity ${
-                              actionLoading.endId === stat.sessionId
-                                ? "opacity-0"
-                                : "opacity-100"
-                            }`}
-                          >
-                            End
-                          </span>
-                          {actionLoading.endId === stat.sessionId && (
+                          {actionLoading.endId === stat.sessionId ? (
                             <>
-                              <div className="absolute w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                              Ending...
                             </>
+                          ) : (
+                            "End"
                           )}
                         </button>
                       )}
@@ -389,144 +528,40 @@ const TeacherAttendance = () => {
                             () => () => deleteSession(stat.sessionId)
                           );
                         }}
-                        className={`${
-                          stat.status === "inactive" ? "w-full" : ""
-                        } relative bg-red-500 hover:bg-red-600 text-white py-2 px-8 rounded-md font-semibold transition flex justify-center items-center`}
                         disabled={
                           actionLoading.deleteId === stat.sessionId ||
                           actionLoading.endId === stat.sessionId
                         }
+                        className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-md font-semibold transition flex justify-center items-center gap-3 disabled:opacity-80"
                       >
-                        <span
-                          className={`transition-opacity ${
-                            actionLoading.deleteId === stat.sessionId
-                              ? "opacity-0"
-                              : "opacity-100"
-                          }`}
-                        >
-                          Delete
-                        </span>
-                        {actionLoading.deleteId === stat.sessionId && (
-                          <>
-                            <div className="absolute w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          </>
-                        )}
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
-            {/* For Small Screen device */}
-            <div className="md:hidden space-y-4">
-              {stats.map((stat) => (
-                <div
-                  key={stat.sessionId}
-                  className="bg-white shadow rounded-lg p-4 space-y-2"
-                >
-                  <div className="flex justify-between items-center">
-                    <h2 className="font-bold text-lg">{stat.className}</h2>
-                    <span
-                      className={`text-sm font-bold ${
-                        stat.status === "active"
-                          ? "text-green-500"
-                          : "text-red-500"
-                      }`}
-                    >
-                      {stat.status}
-                    </span>
-                  </div>
-                  <p className="text-gray-600 text-sm">
-                    <span className="font-medium">Created At:</span>{" "}
-                    {new Date(stat.createdAt).toLocaleString()}
-                  </p>
-                  <p className="text-gray-600 text-sm">
-                    <span className="font-medium">Total Marked:</span>{" "}
-                    {stat.totalMarked}
-                  </p>
-                  <p className="text-gray-600 text-sm">
-                    <span className="font-medium">Session id:</span>{" "}
-                    {stat.sessionId}
-                  </p>
-                  <div className="flex gap-2 mt-2">
-                    {stat.status !== "inactive" && (
-                      <button
-                        onClick={() => {
-                          setConfirmOpen(true);
-                          setConfirmConfig({
-                            title: "End Class",
-                            message:
-                              "Are you sure you want to end this session?",
-                            type: "warning",
-                          });
-                          setConfirmAction(
-                            () => () => endSession(stat.sessionId)
-                          );
-                        }}
-                        disabled={
-                          actionLoading.endId === stat.sessionId ||
-                          actionLoading.deleteId === stat.sessionId
-                        }
-                        className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded-md font-semibold transition flex justify-center items-center gap-3 disabled:opacity-80"
-                      >
-                        {actionLoading.endId === stat.sessionId ? (
+                        {actionLoading.deleteId === stat.sessionId ? (
                           <>
                             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                            Ending...
+                            Deleting...
                           </>
                         ) : (
-                          "End"
+                          "Delete"
                         )}
                       </button>
-                    )}
-
-                    <button
-                      onClick={() => {
-                        setConfirmOpen(true);
-                        setConfirmConfig({
-                          title: "Delete Class",
-                          message:
-                            "Are you sure you want to delete this session? This cannot be undone.",
-                          type: "danger",
-                        });
-                        setConfirmAction(
-                          () => () => deleteSession(stat.sessionId)
-                        );
-                      }}
-                      disabled={
-                        actionLoading.deleteId === stat.sessionId ||
-                        actionLoading.endId === stat.sessionId
-                      }
-                      className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-md font-semibold transition flex justify-center items-center gap-3 disabled:opacity-80"
-                    >
-                      {actionLoading.deleteId === stat.sessionId ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          Deleting...
-                        </>
-                      ) : (
-                        "Delete"
-                      )}
-                    </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
 
-      {/* Confirmation Modal */}
-      <ConfirmModal
-        isOpen={confirmOpen}
-        title={confirmConfig.title}
-        message={confirmConfig.message}
-        type={confirmConfig.type}
-        onConfirm={handleConfirm}
-        onCancel={() => setConfirmOpen(false)}
-      />
-    </div>
+        {/* Confirmation Modal */}
+        <ConfirmModal
+          isOpen={confirmOpen}
+          title={confirmConfig.title}
+          message={confirmConfig.message}
+          type={confirmConfig.type}
+          onConfirm={handleConfirm}
+          onCancel={() => setConfirmOpen(false)}
+        />
+      </div>
+    </>
   );
 };
 

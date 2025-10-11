@@ -46,7 +46,7 @@ const Teacher = () => {
       <Sidebar />
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col mb-15 md:mb-0">
         {/* Header Content */}
 
         <header className="flex flex-wrap items-center justify-between bg-white p-4 shadow border-b border-neutral-300 relative gap-4">
@@ -191,7 +191,7 @@ const Teacher = () => {
           {/* Attendance Chart */}
           <div className="bg-white h-2/3 rounded-xl shadow p-4 sm:p-6">
             <h3 className="text-base sm:text-lg font-semibold mb-4 text-orange-600">
-              Attendance Trend 
+              Attendance Trend
             </h3>
             <div className="w-full h-64 sm:h-80">
               <TeacherLinechart />

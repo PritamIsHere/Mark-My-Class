@@ -14,7 +14,7 @@ const Admin = () => {
       <Sidebar />
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col mb-15 md:mb-0">
         <header className="flex flex-wrap items-center justify-between bg-white p-4 shadow border-b border-neutral-300 relative gap-4">
           <div className="flex items-center gap-3 w-full sm:w-auto">
             <div className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-lg flex-1 sm:w-80">
@@ -124,7 +124,10 @@ const Admin = () => {
             const [approvalsCount, setApprovalsCount] = useState(0);
 
             useEffect(() => {
-              let students = 0, classes = 0, attendance = 0, approvals = 0;
+              let students = 0,
+                classes = 0,
+                attendance = 0,
+                approvals = 0;
               const duration = 1000; // ms
               const steps = 40;
               const interval = duration / steps;
@@ -137,10 +140,22 @@ const Admin = () => {
               let currentStep = 0;
               const timer = setInterval(() => {
                 currentStep++;
-                students = Math.min(Math.round(students + studentsStep), totalStudents);
-                classes = Math.min(Math.round(classes + classesStep), totalClasses);
-                attendance = Math.min(Math.round(attendance + attendanceStep), todaysAttendance);
-                approvals = Math.min(Math.round(approvals + approvalsStep), pendingApprovals);
+                students = Math.min(
+                  Math.round(students + studentsStep),
+                  totalStudents
+                );
+                classes = Math.min(
+                  Math.round(classes + classesStep),
+                  totalClasses
+                );
+                attendance = Math.min(
+                  Math.round(attendance + attendanceStep),
+                  todaysAttendance
+                );
+                approvals = Math.min(
+                  Math.round(approvals + approvalsStep),
+                  pendingApprovals
+                );
 
                 setStudentsCount(students);
                 setClassesCount(classes);
@@ -210,7 +225,7 @@ const Admin = () => {
               Attendance Trend (Monthly)
             </h3>
             <div className="w-full h-64 sm:h-80">
-              <MyChart/>
+              <MyChart />
             </div>
           </div>
         </main>

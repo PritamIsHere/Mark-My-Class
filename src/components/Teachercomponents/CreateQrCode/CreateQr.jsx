@@ -439,7 +439,7 @@ import Sidebar from "../../Sidebar/Sidebar";
 import axiosInstance from "../../../api/axiosInstance";
 import { useAuth } from "../../../Context/AuthContext";
 
-import { Check, ClipboardCopy, Share2, X } from "lucide-react";
+import { Check, ClipboardCopy, QrCode, Share2, X } from "lucide-react";
 import toast from "react-hot-toast";
 
 const CreateQr = () => {
@@ -678,11 +678,11 @@ const CreateQr = () => {
       <Sidebar />
 
       {/* Main Content */}
-      <div className="flex-1 p-6 overflow-y-auto">
-        <h1 className="text-3xl font-bold text-orange-600 mb-6">
-          Create Session QR Code
+      <div className="flex-1 p-6 overflow-y-auto mb-15 md:mb-0">
+        <h1 className="text-3xl font-bold text-orange-600 mb-6 flex items-center gap-x-2">
+          <QrCode size={35} /> Create Session QR Code
         </h1>
-
+        
         {/* Form Card */}
         <div className="bg-white border border-orange-200 p-6 rounded-2xl shadow-lg max-w-3xl">
           <form onSubmit={handleSubmit} className="space-y-5">
