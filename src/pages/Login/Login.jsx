@@ -286,7 +286,7 @@ export default function LoginPage() {
                   </>
                 ) : (
                   <>
-                    <span className="animate-pulse">🧡</span> Login
+                    <span className="animate-pulse" /> Login
                   </>
                 )}
               </motion.button>

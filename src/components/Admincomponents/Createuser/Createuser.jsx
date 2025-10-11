@@ -34,37 +34,6 @@ const Createuser = () => {
     setSubjects(updated);
   };
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   const data = new FormData(e.target);
-
-  //   const body = {
-  //     name: data.get("name"),
-  //     email: data.get("email"),
-  //     role,
-  //     department: role !== "admin" ? data.get("department") : null,
-  //     semester: role === "student" ? Number(data.get("semester")) : null,
-  //     year: role === "student" ? Number(data.get("year")) : null,
-  //     subjects: role === "teacher" ? subjects : [],
-  //   };
-
-  //   try {
-  //     const res = await axiosInstance.post("/admin/create-user", body, {
-  //       headers: { Authorization: `Bearer ${authToken}` },
-  //     });
-  //     toast.success(
-  //       `${role.charAt(0).toUpperCase() + role.slice(1)} created successfully!`
-  //     );
-  //     setSuccessData({
-  //       role: role,
-  //       email: res.data?.email,
-  //       tempPassword: res.data?.tempPassword,
-  //     });
-  //   } catch (error) {
-  //     toast.error("Failed to create user");
-  //   }
-  // };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
