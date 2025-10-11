@@ -416,7 +416,7 @@ const ScanQr = () => {
                 </button>
                 <button
                   onClick={submitWithImage}
-                  className={`mt-4 px-4 py-2 rounded-lg transition w-full sm:w-1/2 ${
+                  className={`mt-4 px-4 py-2 rounded-lg transition w-full sm:w-1/2 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${
                     capturedImage && capturedImage.startsWith("data:image")
                       ? "bg-green-500 text-white hover:bg-green-600"
                       : "bg-gray-400 text-gray-200 cursor-not-allowed"
