@@ -8,7 +8,6 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [fullLoading, setFullloading] = useState(true);
-  // const authToken = localStorage.getItem("token");
   const authToken = Cookies.get("token");
   const [CurrentUser, setCurrentUser] = useState(null);
   const [error, setError] = useState("");
@@ -43,7 +42,6 @@ export const AuthProvider = ({ children }) => {
 
   // login handler
   const login = async (token) => {
-    // localStorage.setItem("token", extractBearerToken(token));
     Cookies.set("token", extractBearerToken(token), {
       expires: 7, // expires in 7 days
       secure: true, // only sent over HTTPS
@@ -55,7 +53,6 @@ export const AuthProvider = ({ children }) => {
   // logout handler
   const logout = async () => {
     setCurrentUser(null);
-    // localStorage.removeItem("token");
     Cookies.remove("token");
     setIsLoggedIn(false);
   };

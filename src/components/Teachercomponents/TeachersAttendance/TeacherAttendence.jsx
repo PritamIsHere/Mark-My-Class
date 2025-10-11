@@ -323,6 +323,13 @@ const TeacherAttendance = () => {
 
               {/* For Small Screen device */}
               <div className="md:hidden space-y-4">
+                {filteredStats.length === 0 && (
+                  <div className="flex flex-col items-center justify-center text-gray-600 py-12 bg-white rounded-lg shadow">
+                    <p className="text-lg font-medium">
+                      No {filterValue} session found.
+                    </p>
+                  </div>
+                )}
                 {filteredStats.map((stat) => (
                   <div
                     key={stat.sessionId}

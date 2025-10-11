@@ -13,7 +13,6 @@ import Home from "./pages/Home/Home";
 import LoginPage from "./pages/Login/Login";
 import { Toaster } from "react-hot-toast";
 import Dashboard from "./pages/Dashboard/Dashboard";
-import LoadingScreen from "./components/Apploading/Loading";
 
 // Admin Components Area
 
@@ -24,8 +23,6 @@ import Collegeconfig from "./components/Admincomponents/Collegeconfig/Collegecon
 // Teachers Components Area
 
 import CreateQr from "./components/Teachercomponents/CreateQrCode/CreateQr";
-import DeleteQr from "./components/Teachercomponents/DeleteQrSession/DeleteQr";
-import EndQrSession from "./components/Teachercomponents/EndQrSession/EndQrSession";
 import TeacherAttendence from "./components/Teachercomponents/TeachersAttendance/TeacherAttendence";
 import MarkAttendance from "./components/Teachercomponents/MarkAttendance/MarkAttendance";
 
@@ -111,29 +108,7 @@ const App = () => {
                 </PrivateRoute>
               }
             />
-
-            <Route
-              path="/teacher/end-qr-session"
-              element={
-                <PrivateRoute>
-                  <TeacherRoute>
-                    <EndQrSession />
-                  </TeacherRoute>
-                </PrivateRoute>
-              }
-            />
-
-            <Route
-              path="/teacher/delete-qr-session"
-              element={
-                <PrivateRoute>
-                  <TeacherRoute>
-                    <DeleteQr />
-                  </TeacherRoute>
-                </PrivateRoute>
-              }
-            />
-
+            
             <Route
               path="/teacher/attendance"
               element={
