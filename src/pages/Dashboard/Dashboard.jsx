@@ -6,9 +6,9 @@ import Teacher from "../Teacher/Teacher";
 import LoadingScreen from "../../components/Apploading/Loading";
 
 const Dashboard = () => {
-  const { CurrentUser, userRole, fullLoading } = useAuth();
+  const { CurrentUser, userRole, fullLoading, initialLoad } = useAuth();
 
-  if (fullLoading) {
+  if (fullLoading || initialLoad) {
     return <LoadingScreen />;
   }
   return (

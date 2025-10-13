@@ -49,7 +49,8 @@ function useAnimatedNumber(value, duration = 900) {
 }
 
 const Student = () => {
-  const { userRole, fullLoading, authToken, CurrentUser } = useAuth();
+  const { userRole, fullLoading, initialLoad, authToken, CurrentUser } =
+    useAuth();
   const [attendanceData, setAttendanceData] = useState([]);
   const [apiLoading, setApiLoading] = useState(true);
   const [apiError, setApiError] = useState(null);
@@ -152,7 +153,9 @@ const Student = () => {
     if (modalSubject) fetchSubjectDetails();
   }, [modalSubject, authToken, CurrentUser]);
 
-  if (fullLoading) return <LoadingScreen />;
+  if (fullLoading || initialLoad) {
+    return <LoadingScreen />;
+  }
 
   // Pie chart data based on dropdown
   const pieData = useMemo(() => {

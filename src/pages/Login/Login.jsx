@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import axiosInstance from "../../api/axiosInstance";
 import toast from "react-hot-toast";
 import { useAuth } from "../../Context/AuthContext";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Forcechange from "../../components/Force-pass-change/Forcechange";
 import { motion, AnimatePresence } from "framer-motion";
 import { Eye, EyeOff, ShieldCheck } from "lucide-react";
@@ -15,6 +15,8 @@ export default function LoginPage() {
   const { login, showPassModel, setShowPassModel } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [capsLockOn, setCapsLockOn] = useState(false);
+
+  const navigate = useNavigate();
 
   const {
     register,
@@ -33,8 +35,8 @@ export default function LoginPage() {
         setShowPassModel(true);
       } else {
         await login(response?.data?.token);
+        navigate("/");
         toast.success("Login Successful");
-        window.location.replace("/");
       }
     } catch (err) {
       if (err.response?.status === 400) {

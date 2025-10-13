@@ -6,6 +6,7 @@ import {
   PublicRoute,
   PrivateRoute,
 } from "./auth/Auth";
+import { ResetProvider } from "./Context/ResetContext";
 import { AuthProvider } from "./Context/AuthContext";
 import { ResponsiveProvider } from "./Context/ResponsiveContext";
 import "./App.css";
@@ -36,129 +37,131 @@ const App = () => {
   return (
     <BrowserRouter>
       <ResponsiveProvider>
-        <AuthProvider>
-          <Toaster />
-          <Routes>
-            {/*                                             Private Route */}
+        <ResetProvider>
+          <AuthProvider>
+            <Toaster />
+            <Routes>
+              {/*                                             Private Route */}
 
-            <Route
-              path="/"
-              element={
-                <PrivateRoute>
-                  <Dashboard />
-                </PrivateRoute>
-              }
-            />
+              <Route
+                path="/"
+                element={
+                  <PrivateRoute>
+                    <Dashboard />
+                  </PrivateRoute>
+                }
+              />
 
-            {/*                                             Public Route */}
+              {/*                                             Public Route */}
 
-            <Route
-              path="/login"
-              element={
-                <PublicRoute>
-                  <LoginPage />
-                </PublicRoute>
-              }
-            />
+              <Route
+                path="/login"
+                element={
+                  <PublicRoute>
+                    <LoginPage />
+                  </PublicRoute>
+                }
+              />
 
-            {/*                                             Admin Routes area */}
+              {/*                                             Admin Routes area */}
 
-            <Route
-              path="/admin/create-user"
-              element={
-                <PrivateRoute>
-                  <AdminRoute>
-                    <Createuser />
-                  </AdminRoute>
-                </PrivateRoute>
-              }
-            />
+              <Route
+                path="/admin/create-user"
+                element={
+                  <PrivateRoute>
+                    <AdminRoute>
+                      <Createuser />
+                    </AdminRoute>
+                  </PrivateRoute>
+                }
+              />
 
-            <Route
-              path="/admin/reset-password"
-              element={
-                <PrivateRoute>
-                  <AdminRoute>
-                    <Resetpassword />
-                  </AdminRoute>
-                </PrivateRoute>
-              }
-            />
+              <Route
+                path="/admin/reset-password"
+                element={
+                  <PrivateRoute>
+                    <AdminRoute>
+                      <Resetpassword />
+                    </AdminRoute>
+                  </PrivateRoute>
+                }
+              />
 
-            <Route
-              path="/admin/college-config"
-              element={
-                <PrivateRoute>
-                  <AdminRoute>
-                    <Collegeconfig />
-                  </AdminRoute>
-                </PrivateRoute>
-              }
-            />
+              <Route
+                path="/admin/college-config"
+                element={
+                  <PrivateRoute>
+                    <AdminRoute>
+                      <Collegeconfig />
+                    </AdminRoute>
+                  </PrivateRoute>
+                }
+              />
 
-            {/*                                             Teacher Routes area */}
+              {/*                                             Teacher Routes area */}
 
-            <Route
-              path="/teacher/create-qr-code"
-              element={
-                <PrivateRoute>
-                  <TeacherRoute>
-                    <CreateQr />
-                  </TeacherRoute>
-                </PrivateRoute>
-              }
-            />
-            
-            <Route
-              path="/teacher/attendance"
-              element={
-                <PrivateRoute>
-                  <TeacherRoute>
-                    <TeacherAttendence />
-                  </TeacherRoute>
-                </PrivateRoute>
-              }
-            />
+              <Route
+                path="/teacher/create-qr-code"
+                element={
+                  <PrivateRoute>
+                    <TeacherRoute>
+                      <CreateQr />
+                    </TeacherRoute>
+                  </PrivateRoute>
+                }
+              />
 
-            <Route
-              path="/teacher/mark-attendance"
-              element={
-                <PrivateRoute>
-                  <TeacherRoute>
-                    <MarkAttendance />
-                  </TeacherRoute>
-                </PrivateRoute>
-              }
-            />
+              <Route
+                path="/teacher/attendance"
+                element={
+                  <PrivateRoute>
+                    <TeacherRoute>
+                      <TeacherAttendence />
+                    </TeacherRoute>
+                  </PrivateRoute>
+                }
+              />
 
-            {/*                                   Student Route Area */}
+              <Route
+                path="/teacher/mark-attendance"
+                element={
+                  <PrivateRoute>
+                    <TeacherRoute>
+                      <MarkAttendance />
+                    </TeacherRoute>
+                  </PrivateRoute>
+                }
+              />
 
-            <Route
-              path="/student/scan-qr-code"
-              element={
-                <PrivateRoute>
-                  <StudentRoute>
-                    <ScanQr />
-                  </StudentRoute>
-                </PrivateRoute>
-              }
-            />
+              {/*                                   Student Route Area */}
 
-            <Route
-              path="/student/leaderboard"
-              element={
-                <PrivateRoute>
-                  <StudentRoute>
-                    <StudentLeaderBoard />
-                  </StudentRoute>
-                </PrivateRoute>
-              }
-            />
+              <Route
+                path="/student/scan-qr-code"
+                element={
+                  <PrivateRoute>
+                    <StudentRoute>
+                      <ScanQr />
+                    </StudentRoute>
+                  </PrivateRoute>
+                }
+              />
 
-            <Route path="/home" element={<Home />} />
-            <Route path="*" element={<Error />} />
-          </Routes>
-        </AuthProvider>
+              <Route
+                path="/student/leaderboard"
+                element={
+                  <PrivateRoute>
+                    <StudentRoute>
+                      <StudentLeaderBoard />
+                    </StudentRoute>
+                  </PrivateRoute>
+                }
+              />
+
+              <Route path="/home" element={<Home />} />
+              <Route path="*" element={<Error />} />
+            </Routes>
+          </AuthProvider>
+        </ResetProvider>
       </ResponsiveProvider>
     </BrowserRouter>
   );
