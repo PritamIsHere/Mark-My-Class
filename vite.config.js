@@ -31,8 +31,9 @@ export default defineConfig({
         ],
       },
       workbox: {
-        cleanupOutdatedCaches: true,
-        sourcemap: true,
+        // cleanupOutdatedCaches: true,
+        // sourcemap: true,
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB
       },
       devOptions: {
         enabled: true,
@@ -42,5 +43,15 @@ export default defineConfig({
   server: {
     port: 3000,
     historyApiFallback: false,
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ["react", "react-dom"],
+        },
+      },
+      chunkSizeWarningLimit: 1500,
+    },
   },
 });
