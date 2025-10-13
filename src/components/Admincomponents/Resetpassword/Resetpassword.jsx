@@ -87,6 +87,7 @@ const ResetPassword = () => {
                   disabled={loading}
                   required
                   placeholder="Enter your email"
+                  autoComplete="email"
                   className="mt-1 w-full border border-orange-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
               </div>
@@ -104,6 +105,7 @@ const ResetPassword = () => {
                   disabled={loading}
                   required
                   placeholder="Enter new password"
+                  autoComplete="new-password"
                   className="mt-1 w-full border border-orange-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
                 <button
@@ -122,13 +124,14 @@ const ResetPassword = () => {
                   Re-enter New Password
                 </label>
                 <input
-                  type={showPassword ? "text" : "password"}
+                  type={"password"}
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   disabled={loading}
                   required
                   placeholder="Re-enter new password"
+                  autoComplete="new-password"
                   className="mt-1 w-full border border-orange-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
               </div>
