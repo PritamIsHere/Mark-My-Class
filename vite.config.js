@@ -10,10 +10,11 @@ export default defineConfig({
       registerType: "autoUpdate",
       manifest: {
         name: "Mark My Class",
-        short_name: "MMC",
+        short_name: "Mark MyClass",
         description: "Smart attendance management application",
         theme_color: "#EC5800",
-        background_color: "#FFF4E6",
+        // background_color: "#FFF4E6",
+        background_color: "#FFFFFF",
         display: "standalone",
         scope: "/",
         start_url: "/",
@@ -31,9 +32,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        // cleanupOutdatedCaches: true,
-        // sourcemap: true,
-        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
       },
       devOptions: {
         enabled: true,
